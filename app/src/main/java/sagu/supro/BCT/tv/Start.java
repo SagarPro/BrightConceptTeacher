@@ -14,6 +14,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 import sagu.supro.BCT.R;
+import sagu.supro.BCT.dynamo.BctLoginCredentialsDO;
 
 public class Start extends Activity {
 
@@ -55,5 +56,6 @@ public class Start extends Activity {
         Thread mythread = new Thread(runnable);
         mythread.start();
 
+        BctLoginCredentialsDO bctLoginCredentialsDO = new BctLoginCredentialsDO();
     }
 }
