@@ -5,6 +5,7 @@ import android.app.UiModeManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.AWSStartupHandler;
@@ -34,5 +35,8 @@ public class Start extends Activity {
                 Log.d(TAG, "AWSMobileClient is instantiated and you are connected to AWS!");
             }
         }).execute();
+
+        Toast.makeText(this, "Working", Toast.LENGTH_SHORT).show();
+
     }
 }
