@@ -37,6 +37,7 @@ public class Start extends Activity {
         }).execute();
 
         Toast.makeText(this, "Working", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Supro Commit 2", Toast.LENGTH_SHORT).show();
 
     }
 }
