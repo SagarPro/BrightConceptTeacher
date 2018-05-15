@@ -42,6 +42,7 @@ public class Start extends Activity {
         }).execute();
 
         // Instantiate a AmazonDynamoDBMapperClient
+
         AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(AWSMobileClient.getInstance().getCredentialsProvider());
         this.dynamoDBMapper = DynamoDBMapper.builder()
                 .dynamoDBClient(dynamoDBClient)
