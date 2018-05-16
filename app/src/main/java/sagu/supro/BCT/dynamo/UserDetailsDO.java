@@ -7,19 +7,21 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexRan
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @DynamoDBTable(tableName = "bct-mobilehub-1215798483-UserDetails")
 
-public class UserDetailsDO {
+public class UserDetailsDO implements Serializable {
     private String _email;
     private String _userName;
     private String _createdDate;
     private Map<String, String> _macAddress;
     private String _password;
     private String _status;
+    private String _noOfDevices;
 
     @DynamoDBHashKey(attributeName = "email")
     @DynamoDBAttribute(attributeName = "email")
@@ -70,6 +72,14 @@ public class UserDetailsDO {
 
     public void setStatus(final String _status) {
         this._status = _status;
+    }
+    @DynamoDBAttribute(attributeName = "noOfDevices")
+    public String getNoOfDevices() {
+        return _noOfDevices;
+    }
+
+    public void setNoOfDevices(final String _noOfDevices) {
+        this._noOfDevices = _noOfDevices;
     }
 
 }
