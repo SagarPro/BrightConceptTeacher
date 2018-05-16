@@ -9,9 +9,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.mobile.client.AWSMobileClient;
-import com.amazonaws.mobile.client.AWSStartupHandler;
-import com.amazonaws.mobile.client.AWSStartupResult;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -24,14 +21,14 @@ import java.util.List;
 import java.util.Map;
 
 import sagu.supro.BCT.R;
-import sagu.supro.BCT.dynamo.BctLoginCredentialsDO;
+import sagu.supro.BCT.utils.AWSProvider;
 import sagu.supro.BCT.utils.Config;
 
 public class Start extends Activity {
 
     public static final String TAG = Start.class.getName();
 
-    AmazonDynamoDBClient dynamoDBClient;
+    private static AmazonDynamoDBClient dynamoDBClient;
     DynamoDBMapper dynamoDBMapper;
 
     public static Start start;
@@ -50,26 +47,30 @@ public class Start extends Activity {
             Log.d(TAG, "Running on a non-TV Device");
         }
 
-        AWSMobileClient.getInstance().initialize(this, new AWSStartupHandler() {
+        /*AWSMobileClient.getInstance().initialize(this, new AWSStartupHandler() {
             @Override
             public void onComplete(AWSStartupResult awsStartupResult) {
                 Log.d(TAG, "AWSMobileClient is instantiated and you are connected to AWS!");
             }
-        }).execute();
+        }).execute();*/
 
         // Instantiate a AmazonDynamoDBMapperClient
-        this.dynamoDBClient = new AmazonDynamoDBClient(AWSMobileClient.getInstance().getCredentialsProvider());
-        this.dynamoDBClient.setRegion(Region.getRegion(Regions.AP_SOUTH_1));
-        this.dynamoDBMapper = DynamoDBMapper.builder()
+        AWSProvider awsProvider = new AWSProvider();
+        dynamoDBClient = new AmazonDynamoDBClient(awsProvider.getCredentialsProvider(getBaseContext()));
+        dynamoDBClient.setRegion(Region.getRegion(Regions.US_EAST_1));
+        /*this.dynamoDBMapper = DynamoDBMapper.builder()
                 .dynamoDBClient(dynamoDBClient)
                 .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
-                .build();
+                .build();*/
 
         //BctLoginCredentialsDO bctLoginCredentialsDO = new BctLoginCredentialsDO();
+
+        new ValidateUser().execute("supradip@brightkidmont.com", "supradip");
+
     }
 
 
-    private static class validateUser extends AsyncTask<String, Void, Boolean> {
+    private static class ValidateUser extends AsyncTask<String, Void, Boolean> {
 
         //Boolean exception, expired;
         String uEmail;
@@ -99,7 +100,7 @@ public class Start extends Activity {
 
             try {
                 ScanRequest request = new ScanRequest().withTableName(Config.USERSTABLENAME);
-                ScanResult response = start.dynamoDBClient.scan(request);
+                ScanResult response = dynamoDBClient.scan(request);
                 List<Map<String, AttributeValue>> userRows = response.getItems();
                 for (Map<String, AttributeValue> map : userRows) {
                     if (map.get("email").getS().equals(strings[0])) {
