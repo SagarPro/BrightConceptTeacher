@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:padding="5dp"
+    android:background="@color/dark_blue"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/tv_user_name"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View
+        android:id="@+id/v_underline"
+        android:layout_below="@+id/tv_user_name"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:alpha="0.5"
+        android:background="@android:color/white"/>
+
+    <TextView
+        android:id="@+id/tv_devices"
+        android:text="Number Of Devices : "
+        android:layout_below="@+id/v_underline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:text="Status : "
+        android:layout_below="@+id/tv_devices"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>

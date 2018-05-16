@@ -3,6 +3,8 @@ package sagu.supro.BCT.mobile;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -42,7 +44,7 @@ public class Register extends Activity {
     ImageView addDevice,minusDevice;
     TextView numberOfDevices;
     Button submit;
-    AlertDialog dialog;
+    AlertDialog progressDialog,alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,8 +82,8 @@ public class Register extends Activity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialog = new SpotsDialog(Register.this);
-                dialog.show();
+                progressDialog = new SpotsDialog(Register.this);
+                progressDialog.show();
 
                 if (validation()){
                     UserDetailsDO userDetailsDO = new UserDetailsDO();
@@ -107,7 +109,8 @@ public class Register extends Activity {
                 }
 
                 else{
-                    dialog.dismiss();
+                    progressDialog.dismiss();
+                    Toast.makeText(Register.this, "Empty Fields Not Allowed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -122,7 +125,7 @@ public class Register extends Activity {
 
 
     @SuppressLint("StaticFieldLeak")
-    private class AddUser extends AsyncTask<Void, Void, Boolean> {
+    private class AddUser extends AsyncTask<Void, Void, String> {
 
         UserDetailsDO userDetailsDO;
         AmazonDynamoDBClient dynamoDBClient;
@@ -145,7 +148,7 @@ public class Register extends Activity {
         }
 
         @Override
-        protected Boolean doInBackground(Void... voids) {
+        protected String doInBackground(Void... voids) {
             try {
                 ScanResult result = null;
                 do {
@@ -158,32 +161,47 @@ public class Register extends Activity {
                     List<Map<String, AttributeValue>> rows = result.getItems();
                     for (Map<String, AttributeValue> map : rows) {
                         if (map.get("email").getS().equals(userDetailsDO.getEmail())) {
-                            return false;
+                            return "email_exists";
                         }
                     }
                 } while (result.getLastEvaluatedKey() != null);
 
                 dynamoDBMapper.save(userDetailsDO);
 
-                return true;
+                return "success";
             } catch (AmazonClientException e){
-                dialog.dismiss();
-                //addUserActivity.showSnackBar("Network connection error!!");
-                return false;
+                return "exception";
             }
         }
 
 
         @Override
-        protected void onPostExecute(Boolean result) {
-            if (result){
-                dialog.dismiss();
-                Toast.makeText(Register.this, "Successfully Registered User", Toast.LENGTH_SHORT).show();
-            } else {
-                dialog.dismiss();
-                Toast.makeText(Register.this, "Failed", Toast.LENGTH_SHORT).show();
+        protected void onPostExecute(String result) {
+            progressDialog.dismiss();
+            AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            switch (result){
+                case "exception":
+                    builder.setTitle("Please Check Your Network Connection");
+                    alertDialog = builder.create();
+                    alertDialog.show();
+                    break;
+                case "email_exists":
+                    builder.setTitle("Email Already Exists");
+                    alertDialog = builder.create();
+                    alertDialog.show();
+                    break;
+                case "success":
+                    Toast.makeText(Register.this, "Successfully Registered User", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(Register.this,Admin.class));
+                    finish();
+                    break;
             }
         }
     }
-
 }
