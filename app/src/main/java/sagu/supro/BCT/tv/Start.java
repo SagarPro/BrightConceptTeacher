@@ -4,8 +4,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.UiModeManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,20 +18,29 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.amazonaws.AmazonClientException;
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import dmax.dialog.SpotsDialog;
 import sagu.supro.BCT.R;
+import sagu.supro.BCT.dynamo.UserDetailsDO;
 import sagu.supro.BCT.mobile.Admin;
 import sagu.supro.BCT.mobile.Register;
 import sagu.supro.BCT.utils.AWSProvider;
@@ -39,6 +51,7 @@ public class Start extends Activity {
     public static final String TAG = Start.class.getName();
 
     private AmazonDynamoDBClient dynamoDBClient;
+    private DynamoDBMapper dynamoDBMapper;
 
     EditText userEmail,userPass;
     Button login;
@@ -63,6 +76,10 @@ public class Start extends Activity {
         AWSProvider awsProvider = new AWSProvider();
         dynamoDBClient = new AmazonDynamoDBClient(awsProvider.getCredentialsProvider(getBaseContext()));
         dynamoDBClient.setRegion(Region.getRegion(Regions.US_EAST_1));
+        dynamoDBMapper = DynamoDBMapper.builder()
+                .dynamoDBClient(dynamoDBClient)
+                .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
+                .build();
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +95,7 @@ public class Start extends Activity {
         String uEmail;
         AlertDialog dialog;
         Boolean adminCheck = false;
+        UserDetailsDO userDetailsDO = new UserDetailsDO();
 
         @Override
         protected void onPreExecute() {
@@ -87,6 +105,7 @@ public class Start extends Activity {
             dialog.show();
         }
 
+        @SuppressLint("HardwareIds")
         @Override
         protected Boolean doInBackground(String... strings) {
 
@@ -99,9 +118,34 @@ public class Start extends Activity {
                 for (Map<String, AttributeValue> map : userRows) {
                     if (map.get("email").getS().equals(strings[0])) {
                         if (map.get("password").getS().equals(strings[1])) {
-                            if(userEmail.getText().toString().equals("supradip@brightkidmont.com"))
+                            if(userEmail.getText().toString().equals("supradip@brightkidmont.com")) {
                                 adminCheck = true;
-                            return true;
+                                return true;
+                            } else {
+                                userDetailsDO = dynamoDBMapper.load(UserDetailsDO.class, strings[0], map.get("userName").getS());
+                                if (userDetailsDO.getStatus().equals("subscribed")) {
+                                    Map<String, String> macDemo = userDetailsDO.getMacAddress();
+                                    Map<String, String> mac = new HashMap<>();
+                                    Set macKeys = macDemo.keySet();
+                                    for (Object key1 : macKeys) {
+                                        String key = (String) key1;
+                                        mac.put(key, macDemo.get(key));
+                                        if (mac.get(key).equals("MAC")) {
+                                            macDemo.put(key, getMacAddr());
+                                            userDetailsDO.setMacAddress(macDemo);
+                                            dynamoDBMapper.save(userDetailsDO);
+                                            return true;
+                                        } else {
+                                            if (getMacAddr().equals(mac.get(key))){
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                    return false;
+                                } else {
+                                    return false;
+                                }
+                            }
                         }
                     }
                 }
@@ -120,7 +164,7 @@ public class Start extends Activity {
                     startActivity(new Intent(Start.this,Admin.class));
                     finish();
                 } else {
-                    getMACAddress();
+                    //getMACAddress();
                     startActivity(new Intent(Start.this, Register.class));
                     finish();
                 }
@@ -132,18 +176,28 @@ public class Start extends Activity {
         }
     }
 
-    private StringBuilder getMACAddress() {
-        StringBuilder userMACAddress = new StringBuilder();
+    public static String getMacAddr() {
         try {
-            NetworkInterface network = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
-            byte[] mac = network.getHardwareAddress();
-            for (int i = 0; i < mac.length; i++) {
-                userMACAddress.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+            List<NetworkInterface> all = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface nif : all) {
+                if (!nif.getName().equalsIgnoreCase("wlan0")) continue;
+                byte[] macBytes = nif.getHardwareAddress();
+                if (macBytes == null) {
+                    return "MAC";
+                }
+                StringBuilder res1 = new StringBuilder();
+                for (byte b : macBytes) {
+                    res1.append(Integer.toHexString(b & 0xFF) + ":");
+                }
+                if (res1.length() > 0) {
+                    res1.deleteCharAt(res1.length() - 1);
+                }
+                return res1.toString();
             }
-        }catch (Exception e){
-            e.printStackTrace();
-            return userMACAddress.append("MAC");
+        } catch (Exception ex) {
+            //handle exception
         }
-        return userMACAddress;
+        return "MAC";
     }
+
 }
