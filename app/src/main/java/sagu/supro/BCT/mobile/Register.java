@@ -2,6 +2,8 @@ package sagu.supro.BCT.mobile;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,6 +15,7 @@ public class Register extends Activity {
     EditText userName,userEmail,userPass;
     ImageView addDevice,minusDevice;
     TextView numberOfDevices;
+    Button submit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +28,15 @@ public class Register extends Activity {
         addDevice = findViewById(R.id.img_add);
         minusDevice = findViewById(R.id.img_minus);
         numberOfDevices = findViewById(R.id.tv_dev_added);
+        submit = findViewById(R.id.b_submit);
+
+
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
     }
 }
