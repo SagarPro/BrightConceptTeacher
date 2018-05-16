@@ -1,11 +1,15 @@
 package sagu.supro.BCT.tv;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.UiModeManager;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.amazonaws.AmazonClientException;
@@ -28,17 +32,19 @@ public class Start extends Activity {
 
     public static final String TAG = Start.class.getName();
 
-    private static AmazonDynamoDBClient dynamoDBClient;
-    DynamoDBMapper dynamoDBMapper;
+    private AmazonDynamoDBClient dynamoDBClient;
 
-    public static Start start;
+    EditText userEmail,userPass;
+    Button login;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
-        start = this;
+        userEmail = findViewById(R.id.et_email);
+        userPass = findViewById(R.id.et_password);
+        login = findViewById(R.id.b_submit);
 
         UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
         if (uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {
@@ -47,30 +53,21 @@ public class Start extends Activity {
             Log.d(TAG, "Running on a non-TV Device");
         }
 
-        /*AWSMobileClient.getInstance().initialize(this, new AWSStartupHandler() {
-            @Override
-            public void onComplete(AWSStartupResult awsStartupResult) {
-                Log.d(TAG, "AWSMobileClient is instantiated and you are connected to AWS!");
-            }
-        }).execute();*/
-
         // Instantiate a AmazonDynamoDBMapperClient
         AWSProvider awsProvider = new AWSProvider();
         dynamoDBClient = new AmazonDynamoDBClient(awsProvider.getCredentialsProvider(getBaseContext()));
         dynamoDBClient.setRegion(Region.getRegion(Regions.US_EAST_1));
-        /*this.dynamoDBMapper = DynamoDBMapper.builder()
-                .dynamoDBClient(dynamoDBClient)
-                .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
-                .build();*/
 
-        //BctLoginCredentialsDO bctLoginCredentialsDO = new BctLoginCredentialsDO();
-
-        new ValidateUser().execute("supradip@brightkidmont.com", "supradip");
-
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new ValidateUser().execute(userEmail.getText().toString(),userPass.getText().toString());
+            }
+        });
     }
 
-
-    private static class ValidateUser extends AsyncTask<String, Void, Boolean> {
+    @SuppressLint("StaticFieldLeak")
+    private class ValidateUser extends AsyncTask<String, Void, Boolean> {
 
         //Boolean exception, expired;
         String uEmail;
@@ -119,9 +116,9 @@ public class Start extends Activity {
         @Override
         protected void onPostExecute(Boolean loginResult) {
             if (loginResult){
-                Toast.makeText(start, "Success", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Start.this, "Success", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(start, "Failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Start.this, "Failed", Toast.LENGTH_SHORT).show();
             }
         }
     }
