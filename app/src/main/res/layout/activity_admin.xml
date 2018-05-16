@@ -2,16 +2,17 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:padding="8dp"
-    android:background="@color/dark_blue"
+    android:background="@android:color/white"
+    android:padding="5dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".mobile.Admin">
 
     <ListView
         android:id="@+id/lv_users"
-        android:divider="@android:color/white"
-        android:dividerHeight="1.2dp"
+        android:layout_marginTop="20dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="5dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
