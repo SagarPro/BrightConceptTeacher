@@ -3,6 +3,7 @@ package sagu.supro.BCT.tv;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.UiModeManager;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import sagu.supro.BCT.R;
+import sagu.supro.BCT.mobile.Register;
 import sagu.supro.BCT.utils.AWSProvider;
 import sagu.supro.BCT.utils.Config;
 
@@ -116,7 +118,8 @@ public class Start extends Activity {
         @Override
         protected void onPostExecute(Boolean loginResult) {
             if (loginResult){
-                Toast.makeText(Start.this, "Success", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(Start.this, Register.class));
+                finish();
             } else {
                 Toast.makeText(Start.this, "Failed", Toast.LENGTH_SHORT).show();
             }
