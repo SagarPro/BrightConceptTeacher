@@ -37,7 +37,8 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".mobile.Register"></activity>
+        <activity android:name=".mobile.Register" />
+        <activity android:name=".mobile.Admin"></activity>
     </application>
 
 </manifest>
