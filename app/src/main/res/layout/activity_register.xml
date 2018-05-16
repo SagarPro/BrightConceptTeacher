@@ -1,9 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="8dp"
+    android:background="@color/dark_blue"
     tools:context=".mobile.Register">
 
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:id="@+id/tv_heading"
+        android:text="Register"
+        android:textSize="30sp"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="35dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/et_name"
+        android:layout_below="@+id/tv_heading"
+        android:layout_margin="5dp"
+        android:hint="Name"
+        android:inputType="textPersonName"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/et_email"
+        android:layout_below="@+id/et_name"
+        android:layout_margin="5dp"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/et_password"
+        android:layout_below="@+id/et_email"
+        android:layout_margin="5dp"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tv_spinner"
+        android:text=" Number of Devices"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="5dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_below="@+id/et_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/linear_container"
+        android:layout_below="@+id/tv_spinner"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true">
+
+        <ImageView
+            android:id="@+id/img_minus"
+            android:layout_margin="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/minus_device"/>
+
+        <TextView
+            android:id="@+id/tv_dev_added"
+            android:text="6"
+            android:textSize="22sp"
+            android:padding="10dp"
+            android:layout_margin="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:background="@android:color/white"/>
+
+        <ImageView
+            android:id="@+id/img_add"
+            android:layout_margin="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/add_device" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/b_submit"
+        android:layout_below="@+id/linear_container"
+        android:layout_margin="35dp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/light_blue"
+        android:text="Submit"
+        android:textAllCaps="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+</RelativeLayout>
