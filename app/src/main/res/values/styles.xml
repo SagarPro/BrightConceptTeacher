@@ -2,4 +2,11 @@
 <resources>
 
     <style name="AppTheme" parent="@style/Theme.Leanback" />
+
+    <style name="Custom" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="DialogTitleAppearance">@android:style/TextAppearance.Medium</item>
+        <item name="DialogTitleText">Loading…</item>
+        <item name="DialogSpotColor">@color/fastlane_background</item>
+        <item name="DialogSpotCount">4</item>
+    </style>
 </resources>

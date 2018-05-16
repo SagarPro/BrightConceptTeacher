@@ -2,6 +2,7 @@ package sagu.supro.BCT.mobile;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import dmax.dialog.SpotsDialog;
 import sagu.supro.BCT.R;
 import sagu.supro.BCT.dynamo.UserDetailsDO;
 import sagu.supro.BCT.utils.AWSProvider;
@@ -40,6 +42,7 @@ public class Register extends Activity {
     ImageView addDevice,minusDevice;
     TextView numberOfDevices;
     Button submit;
+    AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +80,9 @@ public class Register extends Activity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dialog = new SpotsDialog(Register.this);
+                dialog.show();
+
                 if (validation()){
                     UserDetailsDO userDetailsDO = new UserDetailsDO();
                     userDetailsDO.setEmail(userEmail.getText().toString());
@@ -93,13 +99,15 @@ public class Register extends Activity {
 
                     Map<String, String> macAddress = new HashMap<>();
                     for (int i=0; i<Integer.parseInt(numberOfDevices.getText().toString()); i++){
-                        macAddress.put(String.valueOf(i+1), "null");
+                        macAddress.put(String.valueOf(i+1), "MAC");
                     }
 
                     userDetailsDO.setMacAddress(macAddress);
-
                     new AddUser(userDetailsDO).execute();
+                }
 
+                else{
+                    dialog.dismiss();
                 }
             }
         });
@@ -116,7 +124,7 @@ public class Register extends Activity {
     @SuppressLint("StaticFieldLeak")
     private class AddUser extends AsyncTask<Void, Void, Boolean> {
 
-        UserDetailsDO userDetailsDO = new UserDetailsDO();
+        UserDetailsDO userDetailsDO;
         AmazonDynamoDBClient dynamoDBClient;
         DynamoDBMapper dynamoDBMapper;
 
@@ -159,6 +167,7 @@ public class Register extends Activity {
 
                 return true;
             } catch (AmazonClientException e){
+                dialog.dismiss();
                 //addUserActivity.showSnackBar("Network connection error!!");
                 return false;
             }
@@ -167,11 +176,11 @@ public class Register extends Activity {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            /*if(pbAddUser!=null)
-                pbAddUser.setVisibility(View.GONE);*/
             if (result){
-                Toast.makeText(Register.this, "Added", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+                Toast.makeText(Register.this, "Successfully Registered User", Toast.LENGTH_SHORT).show();
             } else {
+                dialog.dismiss();
                 Toast.makeText(Register.this, "Failed", Toast.LENGTH_SHORT).show();
             }
         }
