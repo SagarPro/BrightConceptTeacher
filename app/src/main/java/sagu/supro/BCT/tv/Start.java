@@ -2,6 +2,7 @@ package sagu.supro.BCT.tv;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.UiModeManager;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -25,6 +26,7 @@ import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import java.util.List;
 import java.util.Map;
 
+import dmax.dialog.SpotsDialog;
 import sagu.supro.BCT.R;
 import sagu.supro.BCT.mobile.Register;
 import sagu.supro.BCT.utils.AWSProvider;
@@ -71,25 +73,15 @@ public class Start extends Activity {
     @SuppressLint("StaticFieldLeak")
     private class ValidateUser extends AsyncTask<String, Void, Boolean> {
 
-        //Boolean exception, expired;
         String uEmail;
-        //Date currentDate, expiryDate;
-        //SimpleDateFormat df;
+        AlertDialog dialog;
 
         @Override
         protected void onPreExecute() {
-            /*if (pbLogin !=null && pbLogin.getVisibility()==View.GONE)
-                pbLogin.setVisibility(View.VISIBLE);
-            expired = false;
-            exception = false;
-            Date c = Calendar.getInstance().getTime();
-            df = new SimpleDateFormat("MMM dd, yyyy");
-            String formattedDate = df.format(c.getTime());
-            try {
-                currentDate = df.parse(formattedDate);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }*/
+            dialog = new SpotsDialog(Start.this);
+            //dialog = new SpotsDialog(Start.this,"Custom Loading Message");
+            //dialog = new SpotsDialog(Start.this,"Custom Theme");
+            dialog.show();
         }
 
         @Override
@@ -109,6 +101,7 @@ public class Start extends Activity {
                     }
                 }
             } catch (AmazonClientException e){
+                dialog.dismiss();
                 //showSnackBar("Network connection error!!");
                 return false;
             }
@@ -119,11 +112,12 @@ public class Start extends Activity {
         protected void onPostExecute(Boolean loginResult) {
             if (loginResult){
                 startActivity(new Intent(Start.this, Register.class));
+                dialog.dismiss();
                 finish();
             } else {
+                dialog.dismiss();
                 Toast.makeText(Start.this, "Failed", Toast.LENGTH_SHORT).show();
             }
         }
     }
-
 }
