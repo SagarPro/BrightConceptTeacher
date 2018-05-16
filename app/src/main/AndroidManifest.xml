@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="sagu.supro.BCT">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-feature
@@ -21,11 +21,12 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".leanback_lib.MainActivity"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="landscape" />
         <activity android:name=".leanback_lib.DetailsActivity" />
         <activity android:name=".leanback_lib.PlaybackActivity" />
         <activity android:name=".leanback_lib.BrowseErrorActivity" />
-        <activity android:name=".tv.Start"
+        <activity
+            android:name=".tv.Start"
             android:banner="@drawable/app_icon_your_company"
             android:icon="@drawable/app_icon_your_company"
             android:label="@string/app_name"
@@ -36,6 +37,7 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".mobile.Register"></activity>
     </application>
 
 </manifest>
