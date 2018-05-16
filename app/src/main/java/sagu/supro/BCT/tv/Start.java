@@ -5,16 +5,20 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.UiModeManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.amazonaws.AmazonClientException;
@@ -56,11 +60,14 @@ public class Start extends Activity {
     EditText userEmail,userPass;
     Button login;
 
+    RelativeLayout snackbarView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
+        snackbarView = findViewById(R.id.rel_start);
         userEmail = findViewById(R.id.et_email);
         userPass = findViewById(R.id.et_password);
         login = findViewById(R.id.b_submit);
@@ -84,30 +91,35 @@ public class Start extends Activity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new ValidateUser().execute(userEmail.getText().toString(),userPass.getText().toString());
+                if(TextUtils.isEmpty(userEmail.getText().toString()) || TextUtils.isEmpty(userPass.getText().toString())){
+                    Toast.makeText(Start.this, "Empty Fields Not Allowed", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    new ValidateUser().execute(userEmail.getText().toString(),userPass.getText().toString());
+                }
             }
         });
     }
 
     @SuppressLint("StaticFieldLeak")
-    private class ValidateUser extends AsyncTask<String, Void, Boolean> {
+    private class ValidateUser extends AsyncTask<String, Void, String> {
 
         String uEmail;
-        AlertDialog dialog;
+        AlertDialog progressDialog;
         Boolean adminCheck = false;
         UserDetailsDO userDetailsDO = new UserDetailsDO();
 
         @Override
         protected void onPreExecute() {
-            dialog = new SpotsDialog(Start.this);
+            progressDialog = new SpotsDialog(Start.this);
             //dialog = new SpotsDialog(Start.this,"Custom Loading Message");
             //dialog = new SpotsDialog(Start.this,"Custom Theme");
-            dialog.show();
+            progressDialog.show();
         }
 
         @SuppressLint("HardwareIds")
         @Override
-        protected Boolean doInBackground(String... strings) {
+        protected String doInBackground(String... strings) {
 
             uEmail = strings[0];
 
@@ -118,9 +130,9 @@ public class Start extends Activity {
                 for (Map<String, AttributeValue> map : userRows) {
                     if (map.get("email").getS().equals(strings[0])) {
                         if (map.get("password").getS().equals(strings[1])) {
-                            if(userEmail.getText().toString().equals("supradip@brightkidmont.com")) {
+                            if(userEmail.getText().toString().equals("ss")) {
                                 adminCheck = true;
-                                return true;
+                                return "admin_success";
                             } else {
                                 userDetailsDO = dynamoDBMapper.load(UserDetailsDO.class, strings[0], map.get("userName").getS());
                                 if (userDetailsDO.getStatus().equals("subscribed")) {
@@ -134,44 +146,68 @@ public class Start extends Activity {
                                             macDemo.put(key, getMacAddr());
                                             userDetailsDO.setMacAddress(macDemo);
                                             dynamoDBMapper.save(userDetailsDO);
-                                            return true;
+                                            return "user_success";
                                         } else {
                                             if (getMacAddr().equals(mac.get(key))){
-                                                return true;
+                                                return "user_success";
                                             }
                                         }
                                     }
-                                    return false;
+                                    return "mac_failed";
                                 } else {
-                                    return false;
+                                    return "sub_failed";
                                 }
                             }
                         }
                     }
                 }
             } catch (AmazonClientException e){
-                dialog.dismiss();
-                //showSnackBar("Network connection error!!");
-                return false;
+                return "exception";
             }
-            return false;
+            return "check_failed";
         }
 
         @Override
-        protected void onPostExecute(Boolean loginResult) {
-            if (loginResult){
-                if (adminCheck){
-                    startActivity(new Intent(Start.this,Admin.class));
-                    finish();
-                } else {
-                    //getMACAddress();
+        protected void onPostExecute(String loginResult) {
+            progressDialog.dismiss();
+            AlertDialog alertDialog;
+            AlertDialog.Builder builder = new AlertDialog.Builder(Start.this);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            switch (loginResult){
+                case "check_failed":
+                    builder.setTitle("Email & Password Don't Match");
+                    alertDialog = builder.create();
+                    alertDialog.show();
+                    break;
+                case "exception":
+                    builder.setTitle("Please Check Your Network Connection");
+                    alertDialog = builder.create();
+                    alertDialog.show();
+                    break;
+                case "sub_failed":
+                    builder.setTitle("Your Subscription Has Expired");
+                    alertDialog = builder.create();
+                    alertDialog.show();
+                    break;
+                case "mac_failed":
+                    builder.setTitle("This Device Is Not Registered");
+                    alertDialog = builder.create();
+                    alertDialog.show();
+                    break;
+                case "user_success":
                     startActivity(new Intent(Start.this, Register.class));
                     finish();
-                }
-                dialog.dismiss();
-            } else {
-                dialog.dismiss();
-                Toast.makeText(Start.this, "Failed", Toast.LENGTH_SHORT).show();
+                    break;
+                case "admin_success":
+                    startActivity(new Intent(Start.this,Admin.class));
+                    finish();
+                    break;
             }
         }
     }
@@ -199,5 +235,4 @@ public class Start extends Activity {
         }
         return "MAC";
     }
-
 }
