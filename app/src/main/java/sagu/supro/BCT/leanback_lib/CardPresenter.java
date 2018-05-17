@@ -78,16 +78,16 @@ public class CardPresenter extends Presenter {
 
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
-        Movie mvideoDO = (Movie) item;
+        Video currentVideo = (Video) item;
         ImageCardView cardView = (ImageCardView) viewHolder.view;
 
         Log.d(TAG, "onBindViewHolder");
-        if (mvideoDO.getCardImageUrl() != null) {
-            cardView.setTitleText(mvideoDO.getTitle());
-            cardView.setContentText(mvideoDO.getStudio());
+        if (currentVideo.getCardImageUrl() != null) {
+            cardView.setTitleText(currentVideo.getTitle());
+            cardView.setContentText("Downloaded");
             cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
             Glide.with(viewHolder.view.getContext())
-                    .load(mvideoDO.getCardImageUrl())
+                    .load(currentVideo.getCardImageUrl())
                     .centerCrop()
                     .error(mDefaultCardImage)
                     .into(cardView.getMainImageView());

@@ -1,20 +1,22 @@
-package sagu.supro.BCT.tv.DataModel;
+package sagu.supro.BCT.leanback_lib;
 
-public class Video {
-    private long id;
+import java.io.Serializable;
+
+public class Video implements Serializable{
+    private String id;
     private String title;
     private String description;
-    private String bgImageUrl;
+    //private String bgImageUrl;
     private String cardImageUrl;
     private String videoUrl;
 
     public Video(){}
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -34,13 +36,13 @@ public class Video {
         this.description = description;
     }
 
-    public String getBgImageUrl() {
+    /*public String getBgImageUrl() {
         return bgImageUrl;
     }
 
     public void setBgImageUrl(String bgImageUrl) {
         this.bgImageUrl = bgImageUrl;
-    }
+    }*/
 
     public String getCardImageUrl() {
         return cardImageUrl;
@@ -60,11 +62,11 @@ public class Video {
 
     @Override
     public String toString() {
-        return "Movie{" +
+        return "Video{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", videoUrl='" + videoUrl + '\'' +
-                ", backgroundImageUrl='" + bgImageUrl + '\'' +
+                /*", backgroundImageUrl='" + bgImageUrl + '\'' +*/
                 ", cardImageUrl='" + cardImageUrl + '\'' +
                 '}';
     }

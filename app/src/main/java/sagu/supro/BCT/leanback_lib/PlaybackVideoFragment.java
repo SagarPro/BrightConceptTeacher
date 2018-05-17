@@ -33,8 +33,8 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final Movie mvideoDO =
-                (Movie) getActivity().getIntent().getSerializableExtra(DetailsActivity.MOVIE);
+        final Video currentVideo =
+                (Video) getActivity().getIntent().getSerializableExtra(DetailsActivity.VIDEO);
 
         VideoSupportFragmentGlueHost glueHost =
                 new VideoSupportFragmentGlueHost(PlaybackVideoFragment.this);
@@ -44,10 +44,10 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
 
         mTransportControlGlue = new PlaybackTransportControlGlue<>(getContext(), playerAdapter);
         mTransportControlGlue.setHost(glueHost);
-        mTransportControlGlue.setTitle(mvideoDO.getTitle());
-        mTransportControlGlue.setSubtitle(mvideoDO.getDescription());
+        mTransportControlGlue.setTitle(currentVideo.getTitle());
+        mTransportControlGlue.setSubtitle(currentVideo.getDescription());
         mTransportControlGlue.playWhenPrepared();
-        playerAdapter.setDataSource(Uri.parse(mvideoDO.getVideoUrl()));
+        playerAdapter.setDataSource(Uri.parse(currentVideo.getVideoUrl()));
     }
 
     @Override
