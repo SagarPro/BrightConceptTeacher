@@ -141,18 +141,11 @@ public class VideoDetailsFragment extends DetailsFragment {
         actionAdapter.add(
                 new Action(
                         ACTION_WATCH_TRAILER,
-                        getResources().getString(R.string.watch_trailer_1),
-                        getResources().getString(R.string.watch_trailer_2)));
+                        "Preview"));
         actionAdapter.add(
                 new Action(
                         ACTION_RENT,
-                        getResources().getString(R.string.rent_1),
-                        getResources().getString(R.string.rent_2)));
-        actionAdapter.add(
-                new Action(
-                        ACTION_BUY,
-                        getResources().getString(R.string.buy_1),
-                        getResources().getString(R.string.buy_2)));
+                        "Download"));
         row.setActionsAdapter(actionAdapter);
 
         mAdapter.add(row);
@@ -163,7 +156,7 @@ public class VideoDetailsFragment extends DetailsFragment {
         FullWidthDetailsOverviewRowPresenter detailsPresenter =
                 new FullWidthDetailsOverviewRowPresenter(new DetailsDescriptionPresenter());
         detailsPresenter.setBackgroundColor(
-                ContextCompat.getColor(getContext(), R.color.selected_background));
+                ContextCompat.getColor(getContext(), R.color.default_background));
 
         // Hook up transition element.
         FullWidthDetailsOverviewSharedElementHelper sharedElementHelper =
@@ -219,7 +212,7 @@ public class VideoDetailsFragment extends DetailsFragment {
             if (item instanceof Movie) {
                 Log.d(TAG, "Item: " + item.toString());
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                intent.putExtra(getResources().getString(R.string.movie), mSelectedMovie);
+                intent.putExtra(getResources().getString(R.string.mvideoDO), mSelectedMovie);
 
                 Bundle bundle =
                         ActivityOptionsCompat.makeSceneTransitionAnimation(

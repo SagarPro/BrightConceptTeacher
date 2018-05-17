@@ -45,6 +45,7 @@ import java.util.Set;
 import dmax.dialog.SpotsDialog;
 import sagu.supro.BCT.R;
 import sagu.supro.BCT.dynamo.UserDetailsDO;
+import sagu.supro.BCT.leanback_lib.MainActivity;
 import sagu.supro.BCT.mobile.Admin;
 import sagu.supro.BCT.mobile.Register;
 import sagu.supro.BCT.utils.AWSProvider;
@@ -201,7 +202,7 @@ public class Start extends Activity {
                     alertDialog.show();
                     break;
                 case "user_success":
-                    startActivity(new Intent(Start.this, Register.class));
+                    startActivity(new Intent(Start.this, MainScreen.class));
                     finish();
                     break;
                 case "admin_success":

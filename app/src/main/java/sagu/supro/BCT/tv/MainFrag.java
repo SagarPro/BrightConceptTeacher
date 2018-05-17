@@ -1,18 +1,4 @@
-/*
- * Copyright (C) 2017 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
-package sagu.supro.BCT.leanback_lib;
+package sagu.supro.BCT.tv;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -52,15 +38,20 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import sagu.supro.BCT.R;
+import sagu.supro.BCT.leanback_lib.BrowseErrorActivity;
+import sagu.supro.BCT.leanback_lib.CardPresenter;
+import sagu.supro.BCT.leanback_lib.DetailsActivity;
+import sagu.supro.BCT.leanback_lib.Movie;
+import sagu.supro.BCT.leanback_lib.MovieList;
 
-public class MainFragment extends BrowseFragment {
-    private static final String TAG = "MainFragment";
+public class MainFrag extends BrowseFragment {
+    private static final String TAG = "MainFrag";
 
     private static final int BACKGROUND_UPDATE_DELAY = 300;
     private static final int GRID_ITEM_WIDTH = 200;
     private static final int GRID_ITEM_HEIGHT = 200;
     private static final int NUM_ROWS = 4;
-    private static final int NUM_COLS = 15;
+    private static final int NUM_COLS = 5;
 
     private final Handler mHandler = new Handler();
     private Drawable mDefaultBackground;
@@ -100,13 +91,25 @@ public class MainFragment extends BrowseFragment {
 
         int i;
         for (i = 0; i < NUM_ROWS; i++) {
+            if (i != 0) {
+                Collections.shuffle(list);
+            }
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
             for (int j = 0; j < NUM_COLS; j++) {
-                listRowAdapter.add(list.get(j));
+                listRowAdapter.add(list.get(j % 5));
             }
             HeaderItem header = new HeaderItem(i, MovieList.MOVIE_CATEGORY[i]);
             rowsAdapter.add(new ListRow(header, listRowAdapter));
         }
+
+        /*HeaderItem gridHeader = new HeaderItem(i, "PREFERENCES");
+
+        MainFrag.GridItemPresenter mGridPresenter = new MainFrag.GridItemPresenter();
+        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(mGridPresenter);
+        gridRowAdapter.add(getResources().getString(R.string.grid_view));
+        gridRowAdapter.add(getString(R.string.error_fragment));
+        gridRowAdapter.add(getResources().getString(R.string.personal_settings));
+        rowsAdapter.add(new ListRow(gridHeader, gridRowAdapter));*/
 
         setAdapter(rowsAdapter);
     }
@@ -124,13 +127,13 @@ public class MainFragment extends BrowseFragment {
     private void setupUIElements() {
         // setBadgeDrawable(getActivity().getResources().getDrawable(
         // R.drawable.videos_by_google_banner));
-        setTitle(getString(R.string.browse_title)); // Badge, when set, takes precedent
+        setTitle("Put Bright Kid Logo"); // Badge, when set, takes precedent
         // over title
         setHeadersState(HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
 
         // set fastLane (or headers) background color
-        setBrandColor(ContextCompat.getColor(getContext(), R.color.fastlane_background));
+        setBrandColor(ContextCompat.getColor(getContext(), R.color.dark_blue));
         // set search icon color
         setSearchAffordanceColor(ContextCompat.getColor(getContext(), R.color.search_opaque));
     }
@@ -145,8 +148,8 @@ public class MainFragment extends BrowseFragment {
             }
         });
 
-        setOnItemViewClickedListener(new ItemViewClickedListener());
-        setOnItemViewSelectedListener(new ItemViewSelectedListener());
+        setOnItemViewClickedListener(new MainFrag.ItemViewClickedListener());
+        setOnItemViewSelectedListener(new MainFrag.ItemViewSelectedListener());
     }
 
     private void updateBackground(String uri) {
@@ -172,7 +175,7 @@ public class MainFragment extends BrowseFragment {
             mBackgroundTimer.cancel();
         }
         mBackgroundTimer = new Timer();
-        mBackgroundTimer.schedule(new UpdateBackgroundTask(), BACKGROUND_UPDATE_DELAY);
+        mBackgroundTimer.schedule(new MainFrag.UpdateBackgroundTask(), BACKGROUND_UPDATE_DELAY);
     }
 
     private final class ItemViewClickedListener implements OnItemViewClickedListener {
@@ -253,5 +256,4 @@ public class MainFragment extends BrowseFragment {
         public void onUnbindViewHolder(ViewHolder viewHolder) {
         }
     }
-
 }

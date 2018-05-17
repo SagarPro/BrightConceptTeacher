@@ -8,12 +8,30 @@
     android:layout_height="match_parent"
     tools:context=".mobile.Admin">
 
+    <SearchView
+        android:id="@+id/sv_users"
+        android:layout_alignParentTop="true"
+        android:background="@color/dark_blue"
+        android:layout_toStartOf="@+id/img_reg_user"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"/>
+
+    <ImageView
+        android:id="@+id/img_reg_user"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:background="@color/dark_blue"
+        android:padding="10dp"
+        android:src="@drawable/register_new_user" />
+
     <ListView
         android:id="@+id/lv_users"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:divider="@android:color/transparent"
+        android:layout_below="@+id/sv_users"
         android:dividerHeight="5dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"/>
 
 </RelativeLayout>

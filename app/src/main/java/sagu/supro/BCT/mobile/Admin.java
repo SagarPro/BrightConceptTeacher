@@ -6,9 +6,13 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import java.util.List;
+
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.amazonaws.AmazonClientException;
@@ -22,10 +26,7 @@ import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import dmax.dialog.SpotsDialog;
 import sagu.supro.BCT.R;
@@ -39,18 +40,25 @@ public class Admin extends Activity {
     ListView userListView;
     UsersAdapter usersAdapter;
     List<UserDetailsDO> userList = new ArrayList<>();
+    List<UserDetailsDO> typedString = new ArrayList<>();
 
     private AmazonDynamoDBClient dynamoDBClient;
     private DynamoDBMapper dynamoDBMapper;
+
+    SearchView searchView;
+    ImageView registerUser;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
+        searchView = findViewById(R.id.sv_users);
         userListView = findViewById(R.id.lv_users);
         usersAdapter = new UsersAdapter(userList,this);
         userListView.setAdapter(usersAdapter);
+        registerUser = findViewById(R.id.img_reg_user);
 
         AWSProvider awsProvider = new AWSProvider();
         dynamoDBClient = new AmazonDynamoDBClient(awsProvider.getCredentialsProvider(getBaseContext()));
@@ -61,6 +69,49 @@ public class Admin extends Activity {
                 .build();
 
         new ListUser().execute();
+
+        registerUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Admin.this,Register.class));
+            }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if( ! searchView.isIconified()) {
+                    searchView.setIconified(true);
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                typedString.clear();
+                if(newText!=null && !newText.isEmpty())
+                {
+                    for (int i = 0; i < userList.size(); i++) {
+                        String item = userList.get(i).getUserName();
+
+                        if (item.toLowerCase().contains(newText)) {
+                            typedString.add(userList.get(i));
+                        }
+                    }
+
+                    usersAdapter =  new UsersAdapter(typedString,getApplicationContext());
+                    usersAdapter.notifyDataSetChanged();
+                    userListView.setAdapter(usersAdapter);
+                }
+                else
+                {
+                    usersAdapter =  new UsersAdapter(userList,getApplicationContext());
+                    usersAdapter.notifyDataSetChanged();
+                    userListView.setAdapter(usersAdapter);
+                }
+                return false;
+            }
+        });
 
     }
 
@@ -112,5 +163,4 @@ public class Admin extends Activity {
             }
         }
     }
-
 }
