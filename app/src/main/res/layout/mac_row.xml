@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="45dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:text="1. ee:ee:ee:ee:ee:ee"
+        android:textSize="20sp"
+        android:textColor="@color/dark_blue"
+        android:background="@android:color/white"
+        android:padding="8dp"
+        android:layout_toStartOf="@id/ivClear"
+        android:maxLines="1"
+        android:id="@+id/tvMAC"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:src="@drawable/icon_clear"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:padding="5dp"
+        android:background="@android:color/white"
+        android:id="@+id/ivClear"/>
+
+</RelativeLayout>
