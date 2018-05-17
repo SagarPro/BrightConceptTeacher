@@ -202,7 +202,7 @@ public class Start extends Activity {
                     alertDialog.show();
                     break;
                 case "user_success":
-                    startActivity(new Intent(Start.this, MainActivity.class));
+                    startActivity(new Intent(Start.this, MainScreen.class));
                     finish();
                     break;
                 case "admin_success":
