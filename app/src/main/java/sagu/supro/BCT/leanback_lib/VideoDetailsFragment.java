@@ -18,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v17.leanback.app.DetailsFragment;
 import android.support.v17.leanback.app.DetailsFragmentBackgroundController;
 import android.support.v17.leanback.widget.Action;
@@ -37,24 +38,46 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.crypto.NoSuchPaddingException;
+
 import sagu.supro.BCT.R;
 import sagu.supro.BCT.tv.MainScreen;
+import sagu.supro.BCT.utils.Config;
 
 /*
  * LeanbackDetailsFragment extends DetailsFragment, a Wrapper fragment for leanback details screens.
  * It shows a detailed view of video and its meta plus related videos.
  */
 public class VideoDetailsFragment extends DetailsFragment {
+
     private static final String TAG = "VideoDetailsFragment";
 
-    private static final int ACTION_WATCH_TRAILER = 1;
-    private static final int ACTION_RENT = 2;
-    private static final int ACTION_BUY = 3;
+    private static final int ACTION_STREAMONLINE = 1;
+    private static final int ACTION_DOWNLOAD = 2;
+    private static final int ACTION_PLAY = 3;
+    private static final int ACTION_REMOVE = 4;
 
     private static final int DETAIL_THUMB_WIDTH = 274;
     private static final int DETAIL_THUMB_HEIGHT = 274;
@@ -67,6 +90,9 @@ public class VideoDetailsFragment extends DetailsFragment {
     private ClassPresenterSelector mPresenterSelector;
 
     private DetailsFragmentBackgroundController mDetailsBackground;
+
+    ArrayObjectAdapter actionAdapter = new ArrayObjectAdapter();
+    private List<String> offlineVideos = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -130,16 +156,28 @@ public class VideoDetailsFragment extends DetailsFragment {
                     }
                 });
 
-        ArrayObjectAdapter actionAdapter = new ArrayObjectAdapter();
+        //offlineVideos = ;
 
-        actionAdapter.add(
-                new Action(
-                        ACTION_WATCH_TRAILER,
-                        "Preview"));
-        actionAdapter.add(
-                new Action(
-                        ACTION_RENT,
-                        "Download"));
+        if (offlineVideos.contains(mSelectedVideo.getTitle())){
+            actionAdapter.add(
+                    new Action(
+                            ACTION_PLAY,
+                            "Play"));
+            actionAdapter.add(
+                    new Action(
+                            ACTION_REMOVE,
+                            "Remove"));
+        } else {
+            actionAdapter.add(
+                    new Action(
+                            ACTION_STREAMONLINE,
+                            "Stream Online"));
+            actionAdapter.add(
+                    new Action(
+                            ACTION_DOWNLOAD,
+                            "Download"));
+        }
+
         row.setActionsAdapter(actionAdapter);
 
         mAdapter.add(row);
@@ -163,12 +201,109 @@ public class VideoDetailsFragment extends DetailsFragment {
         detailsPresenter.setOnActionClickedListener(new OnActionClickedListener() {
             @Override
             public void onActionClicked(Action action) {
-                if (action.getId() == ACTION_WATCH_TRAILER) {
-                    Intent intent = new Intent(getActivity(), PlaybackActivity.class);
-                    intent.putExtra(DetailsActivity.VIDEO, mSelectedVideo);
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
+                switch ((int) action.getId()){
+                    case ACTION_STREAMONLINE:
+                        Intent intent = new Intent(getActivity(), PlaybackActivity.class);
+                        intent.putExtra(DetailsActivity.VIDEO, mSelectedVideo);
+                        intent.putExtra("Type","Online");
+                        startActivity(intent);
+                        break;
+                    case ACTION_DOWNLOAD:
+                        String videoName = mSelectedVideo.getTitle()+".mp4";
+                        final File path = Environment.getExternalStorageDirectory();
+                        File file = new File(path+"/BCT/"+mSelectedVideo.getId()+"/");
+                        file.mkdirs();
+                        final String filePath = path+"/BCT/"+mSelectedVideo.getId()+"/"+videoName;
+
+                        AWSCredentials awsCredentials = new BasicAWSCredentials(Config.ACCESSKEY, Config.SECRETKEY);
+                        AmazonS3Client s3 = new AmazonS3Client(awsCredentials);
+                        s3.setRegion(Region.getRegion(Regions.US_EAST_1));
+
+                        final TransferUtility transferUtility = TransferUtility.builder().context(getContext())
+                                .s3Client(s3)
+                                .build();
+
+                        TransferObserver downloadVideoObserver = transferUtility.download(
+                                "bkmhbct", videoName,
+                                new File(filePath));
+
+                        downloadVideoObserver.setTransferListener(new TransferListener() {
+                            @Override
+                            public void onStateChanged(int id, TransferState state) {
+                                if (TransferState.COMPLETED == state) {
+                                    Log.d("Video", "Success");
+
+                                    String imageName = mSelectedVideo.getTitle()+".jpg";
+                                    String imagePath = path+"/BCT/"+mSelectedVideo.getId()+"/"+imageName;
+
+                                    TransferObserver downloadImageObserver = transferUtility.download(
+                                            "bkmhbct", imageName,
+                                            new File(imagePath));
+
+                                    downloadImageObserver.setTransferListener(new TransferListener() {
+                                        @Override
+                                        public void onStateChanged(int id, TransferState state) {
+                                            if (TransferState.COMPLETED == state) {
+                                                Log.d("Image", "Success");
+
+                                                generateNoteOnSD(getContext(), mSelectedVideo.getTitle()+".txt", mSelectedVideo.getDescription());
+
+                                                actionAdapter.clear();
+                                                actionAdapter.add(
+                                                        new Action(
+                                                                ACTION_PLAY,
+                                                                "Play"));
+                                                actionAdapter.add(
+                                                        new Action(
+                                                                ACTION_REMOVE,
+                                                                "Remove"));
+                                            }
+                                        }
+                                        @Override
+                                        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                                            Log.d("Progress", "Progress");
+                                        }
+                                        @Override
+                                        public void onError(int id, Exception ex) {
+                                            Log.d("Progress", ex.getMessage());
+                                        }
+                                    });
+
+                                }
+                            }
+                            @Override
+                            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                                Log.d("Progress", "Progress");
+                            }
+                            @Override
+                            public void onError(int id, Exception ex) {
+                                Log.d("Progress", ex.getMessage());
+                            }
+                        });
+
+                        break;
+                    case ACTION_PLAY:
+                        Intent playIntent = new Intent(getActivity(), PlaybackActivity.class);
+                        playIntent.putExtra(DetailsActivity.VIDEO, mSelectedVideo);
+                        playIntent.putExtra("Type","Downloaded");
+                        startActivity(playIntent);
+                        break;
+                    case ACTION_REMOVE:
+
+                        File dir = new File(Environment.getExternalStorageDirectory()+"/BCT/"+mSelectedVideo.getId());
+                        deleteRecursive(dir);
+
+                        actionAdapter.clear();
+                        actionAdapter.add(
+                                new Action(
+                                        ACTION_STREAMONLINE,
+                                        "Stream Online"));
+                        actionAdapter.add(
+                                new Action(
+                                        ACTION_DOWNLOAD,
+                                        "Download"));
+
+                        break;
                 }
             }
         });
@@ -180,6 +315,32 @@ public class VideoDetailsFragment extends DetailsFragment {
         mAdapter =  videoList.setupMovies();
         mPresenterSelector.addClassPresenter(ListRow.class, new ListRowPresenter());
     }*/
+
+    private void generateNoteOnSD(Context context, String sFileName, String sBody) {
+        try {
+            File path = Environment.getExternalStorageDirectory();
+            File file = new File(path+"/BCT/"+mSelectedVideo.getId()+"/");
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+            File gpxfile = new File(file, sFileName);
+            FileWriter writer = new FileWriter(gpxfile);
+            writer.append(sBody);
+            writer.flush();
+            writer.close();
+            Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+
+        fileOrDirectory.delete();
+    }
 
     private int convertDpToPixel(Context context, int dp) {
         float density = context.getResources().getDisplayMetrics().density;
