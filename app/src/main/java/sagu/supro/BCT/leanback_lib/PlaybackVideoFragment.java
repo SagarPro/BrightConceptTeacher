@@ -16,11 +16,16 @@ package sagu.supro.BCT.leanback_lib;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v17.leanback.app.VideoSupportFragment;
 import android.support.v17.leanback.app.VideoSupportFragmentGlueHost;
 import android.support.v17.leanback.media.MediaPlayerAdapter;
 import android.support.v17.leanback.media.PlaybackTransportControlGlue;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
+import android.support.v4.content.FileProvider;
+import android.widget.Toast;
+
+import java.io.File;
 
 /**
  * Handles video playback with media controls.
@@ -35,6 +40,7 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
 
         final Video currentVideo =
                 (Video) getActivity().getIntent().getSerializableExtra(DetailsActivity.VIDEO);
+        String type = getActivity().getIntent().getStringExtra("Type");
 
         VideoSupportFragmentGlueHost glueHost =
                 new VideoSupportFragmentGlueHost(PlaybackVideoFragment.this);
@@ -42,12 +48,21 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
         MediaPlayerAdapter playerAdapter = new MediaPlayerAdapter(getContext());
         playerAdapter.setRepeatAction(PlaybackControlsRow.RepeatAction.INDEX_NONE);
 
-        mTransportControlGlue = new PlaybackTransportControlGlue<>(getContext(), playerAdapter);
-        mTransportControlGlue.setHost(glueHost);
-        mTransportControlGlue.setTitle(currentVideo.getTitle());
-        mTransportControlGlue.setSubtitle(currentVideo.getDescription());
-        mTransportControlGlue.playWhenPrepared();
-        playerAdapter.setDataSource(Uri.parse(currentVideo.getVideoUrl()));
+        if (type.equals("Online")) {
+            mTransportControlGlue = new PlaybackTransportControlGlue<>(getContext(), playerAdapter);
+            mTransportControlGlue.setHost(glueHost);
+            mTransportControlGlue.setTitle(currentVideo.getTitle());
+            mTransportControlGlue.setSubtitle(currentVideo.getDescription());
+            mTransportControlGlue.playWhenPrepared();
+            playerAdapter.setDataSource(Uri.parse(currentVideo.getVideoUrl()));
+        } else {
+            mTransportControlGlue = new PlaybackTransportControlGlue<>(getContext(), playerAdapter);
+            mTransportControlGlue.setHost(glueHost);
+            mTransportControlGlue.setTitle("Small");
+            mTransportControlGlue.playWhenPrepared();
+            String url = Environment.getExternalStorageDirectory()+"/BCT/LK01/small.mp4";
+            playerAdapter.setDataSource(Uri.fromFile(new File(url)));
+        }
     }
 
     @Override
