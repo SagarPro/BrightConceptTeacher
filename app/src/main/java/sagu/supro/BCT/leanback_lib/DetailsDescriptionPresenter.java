@@ -20,12 +20,12 @@ public class DetailsDescriptionPresenter extends AbstractDetailsDescriptionPrese
 
     @Override
     protected void onBindDescription(ViewHolder viewHolder, Object item) {
-        Movie mvideoDO = (Movie) item;
+        Video currentVideo = (Video) item;
 
-        if (mvideoDO != null) {
-            viewHolder.getTitle().setText(mvideoDO.getTitle());
-            viewHolder.getSubtitle().setText(mvideoDO.getStudio());
-            viewHolder.getBody().setText(mvideoDO.getDescription());
+        if (currentVideo != null) {
+            viewHolder.getTitle().setText(currentVideo.getTitle());
+            viewHolder.getSubtitle().setText("Downloaded/Preview");
+            viewHolder.getBody().setText(currentVideo.getDescription());
         }
     }
 }
