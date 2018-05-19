@@ -14,7 +14,9 @@
 
 package sagu.supro.BCT.leanback_lib;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -36,6 +38,10 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -82,8 +88,6 @@ public class VideoDetailsFragment extends DetailsFragment {
     private static final int DETAIL_THUMB_WIDTH = 274;
     private static final int DETAIL_THUMB_HEIGHT = 274;
 
-    private static final int NUM_COLS = 10;
-
     private Video mSelectedVideo;
 
     private ArrayObjectAdapter mAdapter;
@@ -93,6 +97,9 @@ public class VideoDetailsFragment extends DetailsFragment {
 
     ArrayObjectAdapter actionAdapter = new ArrayObjectAdapter();
     private List<String> offlineVideos = new ArrayList<>();
+
+    ProgressBar progressBar;
+    TextView showProg;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -160,22 +167,11 @@ public class VideoDetailsFragment extends DetailsFragment {
 
         if (offlineVideos.contains(mSelectedVideo.getTitle())){
             actionAdapter.add(
-                    new Action(
-                            ACTION_PLAY,
-                            "Play"));
-            actionAdapter.add(
-                    new Action(
-                            ACTION_REMOVE,
-                            "Remove"));
+                    new Action(ACTION_PLAY, "Play"));
+            actionAdapter.add(new Action(ACTION_REMOVE, "Remove"));
         } else {
-            actionAdapter.add(
-                    new Action(
-                            ACTION_STREAMONLINE,
-                            "Stream Online"));
-            actionAdapter.add(
-                    new Action(
-                            ACTION_DOWNLOAD,
-                            "Download"));
+            actionAdapter.add(new Action(ACTION_STREAMONLINE, "Stream Online"));
+            actionAdapter.add(new Action(ACTION_DOWNLOAD, "Download"));
         }
 
         row.setActionsAdapter(actionAdapter);
@@ -209,6 +205,15 @@ public class VideoDetailsFragment extends DetailsFragment {
                         startActivity(intent);
                         break;
                     case ACTION_DOWNLOAD:
+                        final AlertDialog alertDialog;
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        LayoutInflater inflater = getActivity().getLayoutInflater();
+                        final View dialogView = inflater.inflate(R.layout.download_status, null);
+                        progressBar = dialogView.findViewById(R.id.pb_download);
+                        showProg = dialogView.findViewById(R.id.tv_show_progress);
+                        builder.setTitle("Downloading..Please Wait");
+                        builder.setView(dialogView);
+
                         String videoName = mSelectedVideo.getTitle()+".mp4";
                         final File path = Environment.getExternalStorageDirectory();
                         File file = new File(path+"/BCT/"+mSelectedVideo.getId()+"/");
@@ -223,9 +228,22 @@ public class VideoDetailsFragment extends DetailsFragment {
                                 .s3Client(s3)
                                 .build();
 
-                        TransferObserver downloadVideoObserver = transferUtility.download(
+                        final TransferObserver downloadVideoObserver = transferUtility.download(
                                 "bkmhbct", videoName,
                                 new File(filePath));
+
+                        builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                File halfDownloadedFile = new File(downloadVideoObserver.getAbsoluteFilePath());
+                                deleteRecursive(new File(halfDownloadedFile.getParent()));
+                                downloadVideoObserver.cleanTransferListener();
+                            }
+                        });
+                        alertDialog = builder.create();
+                        alertDialog.setCancelable(false);
+                        alertDialog.show();
 
                         downloadVideoObserver.setTransferListener(new TransferListener() {
                             @Override
@@ -244,28 +262,22 @@ public class VideoDetailsFragment extends DetailsFragment {
                                         @Override
                                         public void onStateChanged(int id, TransferState state) {
                                             if (TransferState.COMPLETED == state) {
-                                                Log.d("Image", "Success");
+
 
                                                 String desc = mSelectedVideo.getTitle()+"\n"+mSelectedVideo.getDescription();
-                                                generateNoteOnSD(getContext(), mSelectedVideo.getTitle()+".txt", desc);
+                                                generateNoteOnSD(mSelectedVideo.getTitle()+".txt", desc);
 
                                                 actionAdapter.clear();
-                                                actionAdapter.add(
-                                                        new Action(
-                                                                ACTION_PLAY,
-                                                                "Play"));
-                                                actionAdapter.add(
-                                                        new Action(
-                                                                ACTION_REMOVE,
-                                                                "Remove"));
+                                                actionAdapter.add(new Action(ACTION_PLAY,"Play"));
+                                                actionAdapter.add(new Action(ACTION_REMOVE,"Remove"));
                                             }
                                         }
                                         @Override
-                                        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                                            Log.d("Progress", "Progress");
-                                        }
+                                        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
+
                                         @Override
                                         public void onError(int id, Exception ex) {
+                                            showErrorToUser("Exception : " + ex.getMessage());
                                             Log.d("Progress", ex.getMessage());
                                         }
                                     });
@@ -274,10 +286,28 @@ public class VideoDetailsFragment extends DetailsFragment {
                             }
                             @Override
                             public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                                Log.d("Progress", "Progress");
+                                try{
+                                    progressBar.setMax((int) bytesTotal);
+                                    progressBar.setProgress((int) bytesCurrent);
+                                    if(bytesCurrent!=0){
+                                        showProg.setText(""+((int) bytesCurrent/(1024*1024))+"/"+(int) (bytesTotal/(1024*1024))+"mb");
+                                    }
+                                    else{
+                                        showProg.setText("0/"+(int) (bytesTotal/(1024*1024))+"MB");
+                                    }
+                                    if(bytesCurrent==bytesTotal){
+                                        alertDialog.dismiss();
+                                    }
+                                }catch (Exception e){
+                                    alertDialog.dismiss();
+                                    showErrorToUser("Exception : " + e.getMessage());
+                                    e.printStackTrace();
+                                }
                             }
                             @Override
                             public void onError(int id, Exception ex) {
+                                alertDialog.dismiss();
+                                showErrorToUser("Exception : "+ex.getMessage());
                                 Log.d("Progress", ex.getMessage());
                             }
                         });
@@ -298,15 +328,8 @@ public class VideoDetailsFragment extends DetailsFragment {
                         deleteRecursive(dir);
 
                         actionAdapter.clear();
-                        actionAdapter.add(
-                                new Action(
-                                        ACTION_STREAMONLINE,
-                                        "Stream Online"));
-                        actionAdapter.add(
-                                new Action(
-                                        ACTION_DOWNLOAD,
-                                        "Download"));
-
+                        actionAdapter.add(new Action(ACTION_STREAMONLINE, "Stream Online"));
+                        actionAdapter.add(new Action(ACTION_DOWNLOAD, "Download"));
                         break;
                 }
             }
@@ -314,13 +337,7 @@ public class VideoDetailsFragment extends DetailsFragment {
         mPresenterSelector.addClassPresenter(DetailsOverviewRow.class, detailsPresenter);
     }
 
-    /*private void setupRelatedMovieListRow() {
-        VideoList videoList = new VideoList(getContext());
-        mAdapter =  videoList.setupMovies();
-        mPresenterSelector.addClassPresenter(ListRow.class, new ListRowPresenter());
-    }*/
-
-    private void generateNoteOnSD(Context context, String sFileName, String sBody) {
+    private void generateNoteOnSD(String sFileName, String sBody) {
         try {
             File path = Environment.getExternalStorageDirectory();
             File file = new File(path+"/BCT/"+mSelectedVideo.getId()+"/");
@@ -332,8 +349,8 @@ public class VideoDetailsFragment extends DetailsFragment {
             writer.append(sBody);
             writer.flush();
             writer.close();
-            Toast.makeText(context, "Save to offline", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
+            showErrorToUser("Exception : " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -349,6 +366,21 @@ public class VideoDetailsFragment extends DetailsFragment {
     private int convertDpToPixel(Context context, int dp) {
         float density = context.getResources().getDisplayMetrics().density;
         return Math.round((float) dp * density);
+    }
+
+    private void showErrorToUser(String errMessage){
+        AlertDialog alertDialog;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(errMessage);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        alertDialog = builder.create();
+        alertDialog.setCancelable(false);
+        alertDialog.show();
     }
 
     private final class ItemViewClickedListener implements OnItemViewClickedListener {
