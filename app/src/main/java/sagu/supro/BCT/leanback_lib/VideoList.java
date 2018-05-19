@@ -224,7 +224,6 @@ public class VideoList {
                 for(int i = 0;i<size;i++){
                     Video video = new Video();
                     video.setId(downloadedVideoId.get(i));
-                    //Fetch Title & Desc from downloadedVideoDesc
                     File textFile = new File(downloadedVideoDesc.get(i));
                     try {
                         BufferedReader br = new BufferedReader(new FileReader(textFile));
