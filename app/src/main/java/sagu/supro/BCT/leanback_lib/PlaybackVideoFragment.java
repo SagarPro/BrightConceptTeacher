@@ -56,12 +56,13 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
             mTransportControlGlue.playWhenPrepared();
             playerAdapter.setDataSource(Uri.parse(currentVideo.getVideoUrl()));
         } else {
+            String videoName = getActivity().getIntent().getStringExtra("VideoName");
+            String videoPath = getActivity().getIntent().getStringExtra("VideoPath");
             mTransportControlGlue = new PlaybackTransportControlGlue<>(getContext(), playerAdapter);
             mTransportControlGlue.setHost(glueHost);
-            mTransportControlGlue.setTitle("Small");
+            mTransportControlGlue.setTitle(videoName);
             mTransportControlGlue.playWhenPrepared();
-            String url = Environment.getExternalStorageDirectory()+"/BCT/LK01/small.mp4";
-            playerAdapter.setDataSource(Uri.fromFile(new File(url)));
+            playerAdapter.setDataSource(Uri.fromFile(new File(videoPath)));
         }
     }
 

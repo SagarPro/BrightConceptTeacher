@@ -246,7 +246,8 @@ public class VideoDetailsFragment extends DetailsFragment {
                                             if (TransferState.COMPLETED == state) {
                                                 Log.d("Image", "Success");
 
-                                                generateNoteOnSD(getContext(), mSelectedVideo.getTitle()+".txt", mSelectedVideo.getDescription());
+                                                String desc = mSelectedVideo.getTitle()+"\n"+mSelectedVideo.getDescription();
+                                                generateNoteOnSD(getContext(), mSelectedVideo.getTitle()+".txt", desc);
 
                                                 actionAdapter.clear();
                                                 actionAdapter.add(
@@ -286,6 +287,9 @@ public class VideoDetailsFragment extends DetailsFragment {
                         Intent playIntent = new Intent(getActivity(), PlaybackActivity.class);
                         playIntent.putExtra(DetailsActivity.VIDEO, mSelectedVideo);
                         playIntent.putExtra("Type","Downloaded");
+                        playIntent.putExtra("VideoName",mSelectedVideo.getTitle());
+                        String videoPath = Environment.getExternalStorageDirectory()+"/BCT/"+mSelectedVideo.getId()+"/"+mSelectedVideo.getTitle()+".mp4";
+                        playIntent.putExtra("VideoPath",videoPath);
                         startActivity(playIntent);
                         break;
                     case ACTION_REMOVE:
@@ -328,7 +332,7 @@ public class VideoDetailsFragment extends DetailsFragment {
             writer.append(sBody);
             writer.flush();
             writer.close();
-            Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Save to offline", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
         }
