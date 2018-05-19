@@ -38,10 +38,6 @@ public class MainFrag extends BrowseFragment {
     private static final String TAG = "MainFrag";
 
     private static final int BACKGROUND_UPDATE_DELAY = 300;
-    private static final int GRID_ITEM_WIDTH = 200;
-    private static final int GRID_ITEM_HEIGHT = 200;
-    private static final int NUM_ROWS = 4;
-    private static final int NUM_COLS = 5;
 
     private final Handler mHandler = new Handler();
     private Drawable mDefaultBackground;
@@ -62,6 +58,7 @@ public class MainFrag extends BrowseFragment {
         loadRows();
 
         setupEventListeners();
+
     }
 
     @Override

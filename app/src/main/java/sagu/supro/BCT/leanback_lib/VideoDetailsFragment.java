@@ -246,7 +246,8 @@ public class VideoDetailsFragment extends DetailsFragment {
                                             if (TransferState.COMPLETED == state) {
                                                 Log.d("Image", "Success");
 
-                                                generateNoteOnSD(getContext(), mSelectedVideo.getTitle()+".txt", mSelectedVideo.getDescription());
+                                                String desc = mSelectedVideo.getTitle()+"\n"+mSelectedVideo.getDescription();
+                                                generateNoteOnSD(getContext(), mSelectedVideo.getTitle()+".txt", desc);
 
                                                 actionAdapter.clear();
                                                 actionAdapter.add(

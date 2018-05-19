@@ -9,4 +9,5 @@
         <item name="DialogSpotColor">@color/fastlane_background</item>
         <item name="DialogSpotCount">4</item>
     </style>
+
 </resources>
