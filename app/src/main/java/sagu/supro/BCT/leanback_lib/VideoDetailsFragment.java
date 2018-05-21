@@ -42,6 +42,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -333,6 +334,8 @@ public class VideoDetailsFragment extends DetailsFragment {
                         startActivity(playIntent);
                         break;
                     case ACTION_REMOVE:
+
+                        Toast.makeText(getActivity(), "Please wait, Removing video from downloads.", Toast.LENGTH_SHORT).show();
 
                         AlertDialog progressDialog = new SpotsDialog(getActivity());
                         progressDialog.show();

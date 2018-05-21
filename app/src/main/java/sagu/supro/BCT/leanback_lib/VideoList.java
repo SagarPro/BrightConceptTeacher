@@ -130,8 +130,42 @@ public class VideoList {
                     HeaderItem header = new HeaderItem(i, VIDEO_CATEGORY.get(i));
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
                 }
+            } else {
+                setDownloadedVideos();
             }
         } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+        return rowsAdapter;
+    }
+
+    private void setDownloadedVideos(){
+
+        int downloadVideos = 0;
+        try {
+            downloadVideos = getTotalDownloadedProjects();
+        } catch (NullPointerException e){
+            Log.d("NullPointerException", e.getMessage());
+        }
+
+        rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+        CardPresenter cardPresenter = new CardPresenter();
+
+        if (downloadVideos != 0){
+
+            VIDEO_CATEGORY.add("Downloaded");
+
+            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+            actualVideoList.clear();
+            updateActualList("downloaded",downloadVideos);
+            listRowAdapter.add(actualVideoList.get(0));
+
+            HeaderItem header = new HeaderItem(0, VIDEO_CATEGORY.get(0));
+            rowsAdapter.add(new ListRow(header, listRowAdapter));
+
+        } else {
+
             AlertDialog alertDialog;
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -141,13 +175,12 @@ public class VideoList {
                 }
             });
 
-            builder.setTitle("Please Check Your Network Connection : " +e.getMessage());
+            builder.setTitle("No Downloaded Videos");
             alertDialog = builder.create();
             alertDialog.show();
 
-            e.printStackTrace();
         }
-        return rowsAdapter;
+
     }
 
     private int getTotalDownloadedProjects() {
