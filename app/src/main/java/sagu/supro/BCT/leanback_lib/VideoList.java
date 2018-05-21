@@ -10,6 +10,7 @@ import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -34,14 +35,12 @@ import sagu.supro.BCT.dynamo.LKGVideosDO;
 import sagu.supro.BCT.dynamo.NurseryVideosDO;
 import sagu.supro.BCT.dynamo.PlaygroupVideosDO;
 import sagu.supro.BCT.dynamo.UKGVideosDO;
-import sagu.supro.BCT.leanback_lib.CardPresenter;
-import sagu.supro.BCT.leanback_lib.Video;
 import sagu.supro.BCT.utils.AWSProvider;
 import sagu.supro.BCT.utils.Config;
 
 public class VideoList {
 
-    private final String MOVIE_CATEGORY[] = {"LKG", "UKG", "Nursery", "Playgroup", "Downloaded"};
+    private List<String> VIDEO_CATEGORY = new ArrayList<>();
     private List<Video> actualVideoList = new ArrayList<>();
 
     private AmazonDynamoDBClient dynamoDBClient;
@@ -59,8 +58,9 @@ public class VideoList {
     private List<String> downloadedCardImage = new ArrayList<>();
     private List<String> downloadedVideoDesc = new ArrayList<>();
 
-    private ArrayObjectAdapter rowsAdapter;
+    private List<String> offlineVideos = new ArrayList<>();
 
+    private ArrayObjectAdapter rowsAdapter;
 
     public VideoList(Context context){
         this.context=context;
@@ -75,14 +75,30 @@ public class VideoList {
                 .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
                 .build();
 
+        int downloadVideos = 0;
+        try {
+            downloadVideos = getTotalDownloadedProjects();
+        } catch (NullPointerException e){
+            Log.d("NullPointerException", e.getMessage());
+        }
+
         try {
             Boolean bgStatus = new FetchVideoDetails().execute().get();
             if (bgStatus) {
                 rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
                 CardPresenter cardPresenter = new CardPresenter();
 
+                VIDEO_CATEGORY.add("LKG");
+                VIDEO_CATEGORY.add("UKG");
+                VIDEO_CATEGORY.add("Nursery");
+                VIDEO_CATEGORY.add("Playgroup");
+
+                if (downloadVideos != 0){
+                    VIDEO_CATEGORY.add("Downloaded");
+                }
+
                 int i;
-                for (i = 0; i < MOVIE_CATEGORY.length; i++) {
+                for (i = 0; i < VIDEO_CATEGORY.size(); i++) {
                     ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
                     int NUM_COLS = i;
                     actualVideoList.clear();
@@ -111,7 +127,7 @@ public class VideoList {
                     for (int j = 0; j < NUM_COLS; j++) {
                         listRowAdapter.add(actualVideoList.get(j));
                     }
-                    HeaderItem header = new HeaderItem(i, MOVIE_CATEGORY[i]);
+                    HeaderItem header = new HeaderItem(i, VIDEO_CATEGORY.get(i));
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
                 }
             }
@@ -165,6 +181,8 @@ public class VideoList {
         downloadedVideoDesc.clear();
         downloadedCardImage.clear();
         downloadedVideoName.clear();
+
+        offlineVideos.clear();
     }
 
     private String getMimeType(String fileUrl) {
@@ -242,9 +260,14 @@ public class VideoList {
                     video.setCardImageUrl(downloadedCardImage.get(i));
                     video.setVideoUrl(downloadedVideoName.get(i));
                     actualVideoList.add(video);
+                    offlineVideos.add(video.getTitle());
                 }
                 break;
         }
+    }
+
+    public List<String> getOfflineVideos(){
+        return offlineVideos;
     }
 
     @SuppressLint("StaticFieldLeak")

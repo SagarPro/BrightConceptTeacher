@@ -1,5 +1,6 @@
 package sagu.supro.BCT.tv;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -14,6 +15,9 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -25,9 +29,13 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import dmax.dialog.SpotsDialog;
 import sagu.supro.BCT.R;
 import sagu.supro.BCT.leanback_lib.BrowseErrorActivity;
 import sagu.supro.BCT.leanback_lib.DetailsActivity;
@@ -46,10 +54,16 @@ public class MainFrag extends BrowseFragment {
     private String mBackgroundUri;
     private BackgroundManager mBackgroundManager;
 
+    private List<String> offlineVideos = new ArrayList<>();
+
+    public static MainFrag mainFrag;
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onActivityCreated(savedInstanceState);
+
+        mainFrag = this;
 
         prepareBackgroundManager();
 
@@ -70,10 +84,14 @@ public class MainFrag extends BrowseFragment {
         }
     }
 
-    private void loadRows() {
+    public void loadRows() {
+
+        offlineVideos.clear();
         VideoList videoList = new VideoList(getContext());
         ArrayObjectAdapter rowsAdapter =  videoList.setupMovies();
         setAdapter(rowsAdapter);
+        offlineVideos.addAll(videoList.getOfflineVideos());
+
     }
 
     private void prepareBackgroundManager() {
@@ -150,6 +168,7 @@ public class MainFrag extends BrowseFragment {
                 Log.d(TAG, "Item: " + item.toString());
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
                 intent.putExtra(DetailsActivity.VIDEO, mvideoDO);
+                intent.putStringArrayListExtra("OfflineVideos", (ArrayList<String>) offlineVideos);
 
                 Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         getActivity(),
@@ -194,4 +213,5 @@ public class MainFrag extends BrowseFragment {
             });
         }
     }
+
 }
