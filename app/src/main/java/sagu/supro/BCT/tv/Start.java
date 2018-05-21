@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.UiModeManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -53,6 +54,8 @@ public class Start extends Activity {
 
     RelativeLayout snackbarView;
 
+    SharedPreferences userPref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +81,21 @@ public class Start extends Activity {
                 .dynamoDBClient(dynamoDBClient)
                 .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
                 .build();
+
+        userPref = getSharedPreferences("USER", MODE_PRIVATE);
+
+        String userType = userPref.getString("UserType", "");
+        if (!userType.equals("")) {
+
+            if (userType.equals("user")) {
+                startActivity(new Intent(Start.this, MainScreen.class));
+                finish();
+            } else {
+                startActivity(new Intent(Start.this,Admin.class));
+                finish();
+            }
+
+        }
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,10 +210,18 @@ public class Start extends Activity {
                     alertDialog.show();
                     break;
                 case "user_success":
+                    SharedPreferences.Editor prefsEditor = userPref.edit();
+                    prefsEditor.putString("UserEmail", userDetailsDO.getEmail());
+                    prefsEditor.putString("UserName", userDetailsDO.getUserName());
+                    prefsEditor.putString("UserType", "user");
+                    prefsEditor.apply();
                     startActivity(new Intent(Start.this, MainScreen.class));
                     finish();
                     break;
                 case "admin_success":
+                    SharedPreferences.Editor aPrefEditor = userPref.edit();
+                    aPrefEditor.putString("UserType", "admin");
+                    aPrefEditor.apply();
                     startActivity(new Intent(Start.this,Admin.class));
                     finish();
                     break;
