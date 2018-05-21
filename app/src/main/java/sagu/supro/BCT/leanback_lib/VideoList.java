@@ -162,6 +162,8 @@ public class VideoList {
             updateActualList("downloaded",downloadVideos);
             listRowAdapter.add(actualVideoList.get(0));
 
+            searchVideosList.addAll(actualVideoList);
+
             HeaderItem header = new HeaderItem(0, VIDEO_CATEGORY.get(0));
             rowsAdapter.add(new ListRow(header, listRowAdapter));
 
@@ -299,7 +301,6 @@ public class VideoList {
                     video.setVideoUrl(downloadedVideoName.get(i));
                     actualVideoList.add(video);
                     offlineVideos.add(video.getTitle());
-                    searchVideosList.add(video);
                 }
                 break;
         }
