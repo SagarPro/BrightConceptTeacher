@@ -14,6 +14,7 @@
 
 package sagu.supro.BCT.leanback_lib;
 
+import android.support.v17.leanback.app.DetailsFragment;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,7 +22,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v17.leanback.app.DetailsFragment;
 import android.support.v17.leanback.app.DetailsFragmentBackgroundController;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -42,7 +42,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -61,16 +60,15 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.crypto.NoSuchPaddingException;
-
+import dmax.dialog.SpotsDialog;
 import sagu.supro.BCT.R;
 import sagu.supro.BCT.tv.MainScreen;
 import sagu.supro.BCT.utils.Config;
+
+import static sagu.supro.BCT.tv.MainFrag.mainFrag;
 
 /*
  * LeanbackDetailsFragment extends DetailsFragment, a Wrapper fragment for leanback details screens.
@@ -96,6 +94,7 @@ public class VideoDetailsFragment extends DetailsFragment {
     private DetailsFragmentBackgroundController mDetailsBackground;
 
     ArrayObjectAdapter actionAdapter = new ArrayObjectAdapter();
+
     private List<String> offlineVideos = new ArrayList<>();
 
     ProgressBar progressBar;
@@ -163,11 +162,11 @@ public class VideoDetailsFragment extends DetailsFragment {
                     }
                 });
 
-        //offlineVideos = ;
+
+        offlineVideos = getActivity().getIntent().getStringArrayListExtra("OfflineVideos");
 
         if (offlineVideos.contains(mSelectedVideo.getTitle())){
-            actionAdapter.add(
-                    new Action(ACTION_PLAY, "Play"));
+            actionAdapter.add(new Action(ACTION_PLAY, "Play"));
             actionAdapter.add(new Action(ACTION_REMOVE, "Remove"));
         } else {
             actionAdapter.add(new Action(ACTION_STREAMONLINE, "Stream Online"));
@@ -205,13 +204,16 @@ public class VideoDetailsFragment extends DetailsFragment {
                         startActivity(intent);
                         break;
                     case ACTION_DOWNLOAD:
+
+                        if (offlineVideos.size() < 10) {
+
                         final AlertDialog alertDialog;
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                         LayoutInflater inflater = getActivity().getLayoutInflater();
                         final View dialogView = inflater.inflate(R.layout.download_status, null);
                         progressBar = dialogView.findViewById(R.id.pb_download);
                         showProg = dialogView.findViewById(R.id.tv_show_progress);
-                        builder.setTitle("Downloading..Please Wait");
+                        builder.setTitle("Downloading, Please Wait");
                         builder.setView(dialogView);
 
                         String videoName = mSelectedVideo.getTitle()+".mp4";
@@ -251,8 +253,8 @@ public class VideoDetailsFragment extends DetailsFragment {
                                 if (TransferState.COMPLETED == state) {
                                     Log.d("Video", "Success");
 
-                                    String imageName = mSelectedVideo.getTitle()+".jpg";
-                                    String imagePath = path+"/BCT/"+mSelectedVideo.getId()+"/"+imageName;
+                                    String imageName = mSelectedVideo.getTitle() + ".jpg";
+                                    String imagePath = path + "/BCT/" + mSelectedVideo.getId() + "/" + imageName;
 
                                     TransferObserver downloadImageObserver = transferUtility.download(
                                             "bkmhbct", imageName,
@@ -263,27 +265,32 @@ public class VideoDetailsFragment extends DetailsFragment {
                                         public void onStateChanged(int id, TransferState state) {
                                             if (TransferState.COMPLETED == state) {
 
-
-                                                String desc = mSelectedVideo.getTitle()+"\n"+mSelectedVideo.getDescription();
-                                                generateNoteOnSD(mSelectedVideo.getTitle()+".txt", desc);
+                                                String desc = mSelectedVideo.getTitle() + "\n" + mSelectedVideo.getDescription();
+                                                generateNoteOnSD(mSelectedVideo.getTitle() + ".txt", desc);
 
                                                 actionAdapter.clear();
-                                                actionAdapter.add(new Action(ACTION_PLAY,"Play"));
-                                                actionAdapter.add(new Action(ACTION_REMOVE,"Remove"));
+                                                actionAdapter.add(new Action(ACTION_PLAY, "Play"));
+                                                actionAdapter.add(new Action(ACTION_REMOVE, "Remove"));
+
+                                                alertDialog.dismiss();
+
                                             }
                                         }
+
                                         @Override
-                                        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
+                                        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                                        }
 
                                         @Override
                                         public void onError(int id, Exception ex) {
+                                            alertDialog.dismiss();
                                             showErrorToUser("Exception : " + ex.getMessage());
                                             Log.d("Progress", ex.getMessage());
                                         }
                                     });
-
                                 }
                             }
+
                             @Override
                             public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
                                 try{
@@ -295,9 +302,8 @@ public class VideoDetailsFragment extends DetailsFragment {
                                     else{
                                         showProg.setText("0/"+(int) (bytesTotal/(1024*1024))+"MB");
                                     }
-                                    if(bytesCurrent==bytesTotal){
-                                        alertDialog.dismiss();
-                                    }
+                                    /*if(bytesCurrent==bytesTotal){
+                                    }*/
                                 }catch (Exception e){
                                     alertDialog.dismiss();
                                     showErrorToUser("Exception : " + e.getMessage());
@@ -312,6 +318,10 @@ public class VideoDetailsFragment extends DetailsFragment {
                             }
                         });
 
+                        } else {
+                            showErrorToUser("Download Limit Exceeded, Only 10 Offline Videos Allowed.\nDelete a video and try again.");
+                        }
+
                         break;
                     case ACTION_PLAY:
                         Intent playIntent = new Intent(getActivity(), PlaybackActivity.class);
@@ -324,17 +334,29 @@ public class VideoDetailsFragment extends DetailsFragment {
                         break;
                     case ACTION_REMOVE:
 
+                        AlertDialog progressDialog = new SpotsDialog(getActivity());
+                        progressDialog.show();
+
                         File dir = new File(Environment.getExternalStorageDirectory()+"/BCT/"+mSelectedVideo.getId());
                         deleteRecursive(dir);
+
+                        refreshAdapter();
 
                         actionAdapter.clear();
                         actionAdapter.add(new Action(ACTION_STREAMONLINE, "Stream Online"));
                         actionAdapter.add(new Action(ACTION_DOWNLOAD, "Download"));
+
+                        getActivity().finish();
+
                         break;
                 }
             }
         });
         mPresenterSelector.addClassPresenter(DetailsOverviewRow.class, detailsPresenter);
+    }
+
+    private void refreshAdapter(){
+        mainFrag.loadRows();
     }
 
     private void generateNoteOnSD(String sFileName, String sBody) {
@@ -349,6 +371,7 @@ public class VideoDetailsFragment extends DetailsFragment {
             writer.append(sBody);
             writer.flush();
             writer.close();
+            refreshAdapter();
         } catch (IOException e) {
             showErrorToUser("Exception : " + e.getMessage());
             e.printStackTrace();
@@ -406,4 +429,6 @@ public class VideoDetailsFragment extends DetailsFragment {
             }
         }
     }
+
+
 }
