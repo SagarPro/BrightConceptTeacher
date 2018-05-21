@@ -3,6 +3,7 @@
     package="sagu.supro.BCT">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -16,10 +17,10 @@
 
     <application
         android:allowBackup="true"
+        android:banner="@drawable/app_icon_your_company"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:banner="@drawable/app_icon_your_company"
         android:theme="@style/AppTheme">
         <activity android:name=".leanback_lib.DetailsActivity" />
         <activity android:name=".leanback_lib.PlaybackActivity" />
@@ -31,14 +32,20 @@
             android:logo="@drawable/app_icon_your_company">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".mobile.Register" />
         <activity android:name=".mobile.Admin" />
-        <service android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService" android:enabled="true" />
+
+        <service
+            android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
+            android:enabled="true" />
+
         <activity android:name=".tv.MainScreen" />
+        <activity android:name=".tv.SearchActivity"></activity>
     </application>
 
 </manifest>

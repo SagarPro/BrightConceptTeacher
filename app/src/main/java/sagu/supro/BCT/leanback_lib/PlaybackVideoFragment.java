@@ -52,7 +52,6 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
             mTransportControlGlue = new PlaybackTransportControlGlue<>(getContext(), playerAdapter);
             mTransportControlGlue.setHost(glueHost);
             mTransportControlGlue.setTitle(currentVideo.getTitle());
-            mTransportControlGlue.setSubtitle(currentVideo.getDescription());
             mTransportControlGlue.playWhenPrepared();
             playerAdapter.setDataSource(Uri.parse(currentVideo.getVideoUrl()));
         } else {

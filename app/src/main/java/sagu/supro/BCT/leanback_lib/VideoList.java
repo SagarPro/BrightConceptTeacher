@@ -42,6 +42,7 @@ public class VideoList {
 
     private List<String> VIDEO_CATEGORY = new ArrayList<>();
     private List<Video> actualVideoList = new ArrayList<>();
+    public static List<Video> searchVideosList = new ArrayList<>();
 
     private AmazonDynamoDBClient dynamoDBClient;
     private DynamoDBMapper dynamoDBMapper;
@@ -58,7 +59,7 @@ public class VideoList {
     private List<String> downloadedCardImage = new ArrayList<>();
     private List<String> downloadedVideoDesc = new ArrayList<>();
 
-    private List<String> offlineVideos = new ArrayList<>();
+    public static List<String> offlineVideos = new ArrayList<>();
 
     private ArrayObjectAdapter rowsAdapter;
 
@@ -234,6 +235,7 @@ public class VideoList {
                     video.setCardImageUrl(lkgVideoDetails.get(i).getVideoCardImg());
                     video.setVideoUrl(lkgVideoDetails.get(i).getVideoUrl());
                     actualVideoList.add(video);
+                    searchVideosList.add(video);
                 }
                 break;
             case "ukg":
@@ -245,6 +247,7 @@ public class VideoList {
                     video.setCardImageUrl(ukgVideoDetails.get(i).getVideoCardImg());
                     video.setVideoUrl(ukgVideoDetails.get(i).getVideoUrl());
                     actualVideoList.add(video);
+                    searchVideosList.add(video);
                 }
                 break;
             case "nursery":
@@ -256,6 +259,7 @@ public class VideoList {
                     video.setCardImageUrl(nurseryVideoDetails.get(i).getVideoCardImg());
                     video.setVideoUrl(nurseryVideoDetails.get(i).getVideoUrl());
                     actualVideoList.add(video);
+                    searchVideosList.add(video);
                 }
                 break;
             case "playgroup":
@@ -267,6 +271,7 @@ public class VideoList {
                     video.setCardImageUrl(playgroupVideoDetails.get(i).getVideoCardImg());
                     video.setVideoUrl(playgroupVideoDetails.get(i).getVideoUrl());
                     actualVideoList.add(video);
+                    searchVideosList.add(video);
                 }
                 break;
 
@@ -294,6 +299,7 @@ public class VideoList {
                     video.setVideoUrl(downloadedVideoName.get(i));
                     actualVideoList.add(video);
                     offlineVideos.add(video.getTitle());
+                    searchVideosList.add(video);
                 }
                 break;
         }
