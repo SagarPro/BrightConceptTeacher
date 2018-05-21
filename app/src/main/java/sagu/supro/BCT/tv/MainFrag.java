@@ -1,8 +1,12 @@
 package sagu.supro.BCT.tv;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.app.BackgroundManager;
@@ -15,21 +19,22 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -37,10 +42,14 @@ import java.util.TimerTask;
 
 import dmax.dialog.SpotsDialog;
 import sagu.supro.BCT.R;
+import sagu.supro.BCT.dynamo.UserDetailsDO;
 import sagu.supro.BCT.leanback_lib.BrowseErrorActivity;
 import sagu.supro.BCT.leanback_lib.DetailsActivity;
 import sagu.supro.BCT.leanback_lib.Video;
 import sagu.supro.BCT.leanback_lib.VideoList;
+import sagu.supro.BCT.utils.AWSProvider;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class MainFrag extends BrowseFragment {
     private static final String TAG = "MainFrag";
@@ -58,6 +67,9 @@ public class MainFrag extends BrowseFragment {
 
     public static MainFrag mainFrag;
 
+    AlertDialog progressDialog;
+    SharedPreferences userPref;
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
@@ -65,12 +77,21 @@ public class MainFrag extends BrowseFragment {
 
         mainFrag = this;
 
+        userPref = getActivity().getSharedPreferences("USER", MODE_PRIVATE);
+        final String email = userPref.getString("UserEmail", "");
+        final String name = userPref.getString("UserName", "");
+
+        progressDialog = new SpotsDialog(getActivity());
+
+        new UserSubscription().execute(email, name);
+
+    }
+
+    private void prepareUI(){
+
         prepareBackgroundManager();
-
         setupUIElements();
-
         loadRows();
-
         setupEventListeners();
 
     }
@@ -91,6 +112,9 @@ public class MainFrag extends BrowseFragment {
         ArrayObjectAdapter rowsAdapter =  videoList.setupMovies();
         setAdapter(rowsAdapter);
         offlineVideos.addAll(videoList.getOfflineVideos());
+
+        if (progressDialog.isShowing())
+            progressDialog.dismiss();
 
     }
 
@@ -211,6 +235,46 @@ public class MainFrag extends BrowseFragment {
                     updateBackground(mBackgroundUri);
                 }
             });
+        }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private class UserSubscription extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+            AWSProvider awsProvider = new AWSProvider();
+            AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(awsProvider.getCredentialsProvider(getContext()));
+            dynamoDBClient.setRegion(Region.getRegion(Regions.US_EAST_1));
+            DynamoDBMapper dynamoDBMapper = DynamoDBMapper.builder()
+                    .dynamoDBClient(dynamoDBClient)
+                    .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
+                    .build();
+
+            try {
+                UserDetailsDO userDetails = dynamoDBMapper.load(UserDetailsDO.class, strings[0], strings[1]);
+
+                return !userDetails.getStatus().equals("unsubscribed");
+            } catch (AmazonClientException e){
+                return true;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+
+            if (result){
+                prepareUI();
+            } else {
+                startActivity(new Intent(getActivity(), Start.class));
+                getActivity().finish();
+            }
+
         }
     }
 
