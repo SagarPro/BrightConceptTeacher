@@ -9,6 +9,7 @@ public class Video implements Serializable{
     //private String bgImageUrl;
     private String cardImageUrl;
     private String videoUrl;
+    private String videoTopic;
 
     public Video(){}
 
@@ -59,6 +60,12 @@ public class Video implements Serializable{
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
     }
+
+    public void setVideoTopic(String videoTopic){
+        this.videoTopic = videoTopic;
+    }
+
+    public String getVideoTopic(){ return videoTopic; }
 
     @Override
     public String toString() {

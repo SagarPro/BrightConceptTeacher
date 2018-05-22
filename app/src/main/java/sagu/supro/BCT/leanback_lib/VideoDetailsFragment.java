@@ -84,8 +84,8 @@ public class VideoDetailsFragment extends DetailsFragment {
     private static final int ACTION_PLAY = 3;
     private static final int ACTION_REMOVE = 4;
 
-    private static final int DETAIL_THUMB_WIDTH = 274;
-    private static final int DETAIL_THUMB_HEIGHT = 274;
+    private static final int DETAIL_THUMB_WIDTH = 313;
+    private static final int DETAIL_THUMB_HEIGHT = 176;
 
     private Video mSelectedVideo;
 
@@ -128,7 +128,7 @@ public class VideoDetailsFragment extends DetailsFragment {
     private void initializeBackground(Video data) {
         mDetailsBackground.enableParallax();
         Glide.with(getActivity())
-                .load(R.drawable.default_background)
+                .load(R.drawable.bct_bg)
                 .asBitmap()
                 .centerCrop()
                 .into(new SimpleTarget<Bitmap>() {

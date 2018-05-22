@@ -19,6 +19,7 @@ public class LKGVideosDO {
     private String _videoCardImg;
     private String _videoDescription;
     private String _videoUrl;
+    private String _videoTopic;
 
     @DynamoDBHashKey(attributeName = "video_id")
     @DynamoDBAttribute(attributeName = "video_id")
@@ -61,6 +62,14 @@ public class LKGVideosDO {
 
     public void setVideoUrl(final String _videoUrl) {
         this._videoUrl = _videoUrl;
+    }
+    @DynamoDBAttribute(attributeName = "video_topic")
+    public String getVideoTopic() {
+        return _videoTopic;
+    }
+
+    public void setVideoTopic(final String _videoTopic) {
+        this._videoTopic = _videoTopic;
     }
 
 }
