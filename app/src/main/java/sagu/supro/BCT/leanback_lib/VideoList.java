@@ -163,8 +163,11 @@ public class VideoList {
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
             actualVideoList.clear();
             updateActualList("downloaded",downloadVideos);
-            listRowAdapter.add(actualVideoList.get(0));
-
+            int i=0;
+            while (i<actualVideoList.size()) {
+                listRowAdapter.add(actualVideoList.get(i));
+                i++;
+            }
             searchVideosList.addAll(actualVideoList);
 
             HeaderItem header = new HeaderItem(0, VIDEO_CATEGORY.get(0));
@@ -186,7 +189,6 @@ public class VideoList {
             alertDialog.show();
 
         }
-
     }
 
     private int getTotalDownloadedProjects() {
