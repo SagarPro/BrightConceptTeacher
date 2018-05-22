@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@android:color/transparent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="10dp"
+    tools:context=".tv.MainScreen2">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="2">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:weightSum="2"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/ib_playgroup"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/playgroup_main_card"
+                android:scaleType="fitXY"
+                android:nextFocusDown="@+id/ib_lkg"
+                android:nextFocusRight="@+id/ib_nursery"
+                android:layout_weight="1"/>
+
+            <ImageButton
+                android:id="@+id/ib_nursery"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/nursery_main_card"
+                android:nextFocusDown="@+id/ib_ukg"
+                android:nextFocusLeft="@+id/ib_playgroup"
+                android:scaleType="fitXY"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:weightSum="2"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/ib_lkg"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/lkg_main_card"
+                android:scaleType="fitXY"
+                android:nextFocusUp="@+id/ib_playgroup"
+                android:nextFocusRight="@+id/ib_ukg"
+                android:layout_weight="1"/>
+
+            <ImageButton
+                android:id="@+id/ib_ukg"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/ukg_main_card"
+                android:nextFocusUp="@+id/ib_nursery"
+                android:nextFocusLeft="@+id/ib_lkg"
+                android:scaleType="fitXY"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
