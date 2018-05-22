@@ -28,6 +28,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -240,6 +243,7 @@ public class VideoList {
                     video.setDescription(lkgVideoDetails.get(i).getVideoDescription());
                     video.setCardImageUrl(lkgVideoDetails.get(i).getVideoCardImg());
                     video.setVideoUrl(lkgVideoDetails.get(i).getVideoUrl());
+                    video.setVideoTopic(lkgVideoDetails.get(i).getVideoTopic());
                     actualVideoList.add(video);
                     searchVideosList.add(video);
                 }
@@ -252,6 +256,7 @@ public class VideoList {
                     video.setDescription(ukgVideoDetails.get(i).getVideoDescription());
                     video.setCardImageUrl(ukgVideoDetails.get(i).getVideoCardImg());
                     video.setVideoUrl(ukgVideoDetails.get(i).getVideoUrl());
+                    video.setVideoTopic(ukgVideoDetails.get(i).getVideoTopic());
                     actualVideoList.add(video);
                     searchVideosList.add(video);
                 }
@@ -264,6 +269,7 @@ public class VideoList {
                     video.setDescription(nurseryVideoDetails.get(i).getVideoDescription());
                     video.setCardImageUrl(nurseryVideoDetails.get(i).getVideoCardImg());
                     video.setVideoUrl(nurseryVideoDetails.get(i).getVideoUrl());
+                    video.setVideoTopic(nurseryVideoDetails.get(i).getVideoTopic());
                     actualVideoList.add(video);
                     searchVideosList.add(video);
                 }
@@ -276,6 +282,7 @@ public class VideoList {
                     video.setDescription(playgroupVideoDetails.get(i).getVideoDescription());
                     video.setCardImageUrl(playgroupVideoDetails.get(i).getVideoCardImg());
                     video.setVideoUrl(playgroupVideoDetails.get(i).getVideoUrl());
+                    video.setVideoTopic(playgroupVideoDetails.get(i).getVideoTopic());
                     actualVideoList.add(video);
                     searchVideosList.add(video);
                 }
@@ -330,6 +337,8 @@ public class VideoList {
                     lkgVideoDetails.add(lkgVideosDO);
                 }
 
+                Collections.sort(lkgVideoDetails, new LKGVideoIdComparator());
+
                 ScanRequest request2 = new ScanRequest().withTableName(Config.UKGTABLENAME);
                 ScanResult response2 = dynamoDBClient.scan(request2);
                 List<Map<String, AttributeValue>> userRows2 = response2.getItems();
@@ -338,6 +347,8 @@ public class VideoList {
                             map.get("video_title").getS());
                     ukgVideoDetails.add(ukgVideosDO);
                 }
+
+                Collections.sort(ukgVideoDetails, new UKGVideoIdComparator());
 
                 ScanRequest request3 = new ScanRequest().withTableName(Config.NURSERYTABLENAME);
                 ScanResult response3 = dynamoDBClient.scan(request3);
@@ -348,6 +359,8 @@ public class VideoList {
                     nurseryVideoDetails.add(nurseryVideosDO);
                 }
 
+                Collections.sort(nurseryVideoDetails, new NurseryVideoIdComparator());
+
 
                 ScanRequest request4 = new ScanRequest().withTableName(Config.PLAYGROUPTABLENAME);
                 ScanResult response4 = dynamoDBClient.scan(request4);
@@ -357,6 +370,8 @@ public class VideoList {
                             map.get("video_title").getS());
                     playgroupVideoDetails.add(playgroupVideosDO);
                 }
+
+                Collections.sort(playgroupVideoDetails, new PlaygroupVideoIdComparator());
 
                 return true;
             } catch (AmazonClientException e){
@@ -382,4 +397,33 @@ public class VideoList {
             super.onPostExecute(s);
         }
     }
+
+    private class LKGVideoIdComparator implements Comparator<LKGVideosDO>{
+        @Override
+        public int compare(LKGVideosDO v1, LKGVideosDO v2) {
+            return v1.getVideoId().compareTo(v2.getVideoId());
+        }
+    }
+
+    private class UKGVideoIdComparator implements Comparator<UKGVideosDO>{
+        @Override
+        public int compare(UKGVideosDO v1, UKGVideosDO v2) {
+            return v1.getVideoId().compareTo(v2.getVideoId());
+        }
+    }
+
+    private class NurseryVideoIdComparator implements Comparator<NurseryVideosDO>{
+        @Override
+        public int compare(NurseryVideosDO v1, NurseryVideosDO v2) {
+            return v1.getVideoId().compareTo(v2.getVideoId());
+        }
+    }
+
+    private class PlaygroupVideoIdComparator implements Comparator<PlaygroupVideosDO>{
+        @Override
+        public int compare(PlaygroupVideosDO v1, PlaygroupVideosDO v2) {
+            return v1.getVideoId().compareTo(v2.getVideoId());
+        }
+    }
+
 }
