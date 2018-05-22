@@ -68,6 +68,9 @@ public class VideoList {
     }
 
     public ArrayObjectAdapter setupMovies() {
+
+        clearAllLists();
+
         AWSProvider awsProvider = new AWSProvider();
         dynamoDBClient = new AmazonDynamoDBClient(awsProvider.getCredentialsProvider(context));
         dynamoDBClient.setRegion(Region.getRegion(Regions.US_EAST_1));
@@ -121,7 +124,7 @@ public class VideoList {
                             updateActualList("playgroup", playgroupVideoDetails.size());
                             break;
                         case 4:
-                            NUM_COLS = getTotalDownloadedProjects();
+                            NUM_COLS = downloadVideos;
                             updateActualList("downloaded",NUM_COLS);
                             break;
                     }
@@ -193,7 +196,6 @@ public class VideoList {
     }
 
     private void getDownloadedVideoNames(File directory) {
-        clearAllLists();
         File[] fileList = directory.listFiles();
         for(File currentFile : fileList){
             if(!currentFile.isDirectory() && getMimeType(currentFile.getName()).equals("video/mp4")){
@@ -206,8 +208,8 @@ public class VideoList {
                 downloadedVideoDesc.add(currentFile.getPath());
             }
             else{
-                getDownloadedVideoNames(currentFile);
                 downloadedVideoId.add(currentFile.getName());
+                getDownloadedVideoNames(currentFile);
             }
         }
     }
@@ -300,7 +302,7 @@ public class VideoList {
                     video.setCardImageUrl(downloadedCardImage.get(i));
                     video.setVideoUrl(downloadedVideoName.get(i));
                     actualVideoList.add(video);
-                    offlineVideos.add(video.getTitle());
+                    offlineVideos.add(video.getId());
                 }
                 break;
         }

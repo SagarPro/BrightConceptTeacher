@@ -3,6 +3,7 @@
     package="sagu.supro.BCT">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -38,9 +39,7 @@
         <activity android:name=".mobile.Register" />
         <activity android:name=".mobile.Admin" />
 
-        <service
-            android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
-            android:enabled="true" />
+        <service android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService" android:enabled="true" />
 
         <activity android:name=".tv.MainScreen" />
         <activity android:name=".tv.SearchActivity"/>

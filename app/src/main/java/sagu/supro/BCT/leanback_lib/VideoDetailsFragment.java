@@ -166,7 +166,7 @@ public class VideoDetailsFragment extends DetailsFragment {
 
         offlineVideos = getActivity().getIntent().getStringArrayListExtra("OfflineVideos");
 
-        if (offlineVideos.contains(mSelectedVideo.getTitle())){
+        if (offlineVideos.contains(mSelectedVideo.getId())){
             actionAdapter.add(new Action(ACTION_PLAY, "Play"));
             actionAdapter.add(new Action(ACTION_REMOVE, "Remove"));
         } else {
@@ -217,7 +217,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                         builder.setTitle("Downloading, Please Wait");
                         builder.setView(dialogView);
 
-                        String videoName = mSelectedVideo.getTitle()+".mp4";
+                        String videoName = mSelectedVideo.getId()+".mp4";
                         final File path = Environment.getExternalStorageDirectory();
                         File file = new File(path+"/BCT/"+mSelectedVideo.getId()+"/");
                         file.mkdirs();
@@ -254,8 +254,8 @@ public class VideoDetailsFragment extends DetailsFragment {
                                 if (TransferState.COMPLETED == state) {
                                     Log.d("Video", "Success");
 
-                                    String imageName = mSelectedVideo.getTitle() + ".jpg";
-                                    String imagePath = path + "/BCT/" + mSelectedVideo.getId() + "/" + imageName;
+                                    String imageName = mSelectedVideo.getId() + ".jpg";
+                                    String imagePath = path + "/BCT/" + mSelectedVideo.getId() + "/"+imageName;
 
                                     TransferObserver downloadImageObserver = transferUtility.download(
                                             "bkmhbct", imageName,
@@ -267,7 +267,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                                             if (TransferState.COMPLETED == state) {
 
                                                 String desc = mSelectedVideo.getTitle() + "\n" + mSelectedVideo.getDescription();
-                                                generateNoteOnSD(mSelectedVideo.getTitle() + ".txt", desc);
+                                                generateNoteOnSD(mSelectedVideo.getId() + ".txt", desc);
 
                                                 actionAdapter.clear();
                                                 actionAdapter.add(new Action(ACTION_PLAY, "Play"));
@@ -329,7 +329,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                         playIntent.putExtra(DetailsActivity.VIDEO, mSelectedVideo);
                         playIntent.putExtra("Type","Downloaded");
                         playIntent.putExtra("VideoName",mSelectedVideo.getTitle());
-                        String videoPath = Environment.getExternalStorageDirectory()+"/BCT/"+mSelectedVideo.getId()+"/"+mSelectedVideo.getTitle()+".mp4";
+                        String videoPath = Environment.getExternalStorageDirectory()+"/BCT/"+mSelectedVideo.getId()+"/"+mSelectedVideo.getId()+".mp4";
                         playIntent.putExtra("VideoPath",videoPath);
                         startActivity(playIntent);
                         break;
