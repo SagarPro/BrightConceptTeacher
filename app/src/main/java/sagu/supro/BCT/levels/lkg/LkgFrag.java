@@ -91,11 +91,10 @@ public class LkgFrag extends BrowseFragment {
     public void loadRows() {
 
         offlineVideos.clear();
-        VideoList videoList = new VideoList(getContext());
-        ArrayObjectAdapter rowsAdapter =  videoList.setupMovies();
+        LkgVideoList videoList = new LkgVideoList(getContext());
+        ArrayObjectAdapter rowsAdapter =  videoList.setupLkgVideos();
         setAdapter(rowsAdapter);
         offlineVideos.addAll(videoList.getOfflineVideos());
-
     }
 
     private void prepareBackgroundManager() {
@@ -109,7 +108,7 @@ public class LkgFrag extends BrowseFragment {
     }
 
     private void setupUIElements() {
-        setTitle("Playgroup");
+        setTitle("Lkg");
         setHeadersState(HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
         setBrandColor(ContextCompat.getColor(getContext(), R.color.dark_blue));
@@ -166,6 +165,7 @@ public class LkgFrag extends BrowseFragment {
                 Log.d(TAG, "Item: " + item.toString());
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
                 intent.putExtra(DetailsActivity.VIDEO, mvideoDO);
+                intent.putExtra("LEVEL","LKG");
                 intent.putStringArrayListExtra("OfflineVideos", (ArrayList<String>) offlineVideos);
 
                 Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(

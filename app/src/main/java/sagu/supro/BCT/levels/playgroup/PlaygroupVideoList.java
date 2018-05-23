@@ -1,4 +1,4 @@
-package sagu.supro.BCT.levels.nursery;
+package sagu.supro.BCT.levels.playgroup;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -33,14 +33,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import sagu.supro.BCT.dynamo.NurseryVideosDO;
+import sagu.supro.BCT.dynamo.PlaygroupVideosDO;
 import sagu.supro.BCT.leanback_lib.CardPresenter;
 import sagu.supro.BCT.leanback_lib.Video;
 import sagu.supro.BCT.utils.AWSProvider;
 import sagu.supro.BCT.utils.Config;
 
-public class NurseryVideoList {
-
+public class PlaygroupVideoList {
     private List<String> VIDEO_CATEGORY = new ArrayList<>();
     private List<Video> actualVideoList = new ArrayList<>();
     public static List<Video> searchVideosList = new ArrayList<>();
@@ -49,33 +48,32 @@ public class NurseryVideoList {
     private DynamoDBMapper dynamoDBMapper;
     private Context context;
 
-    private List<NurseryVideosDO> phonics = new ArrayList<>();
-    private List<NurseryVideosDO> numbersCounting = new ArrayList<>();
-    private List<NurseryVideosDO> rhymes = new ArrayList<>();
-    private List<NurseryVideosDO> stories = new ArrayList<>();
-    private List<NurseryVideosDO> generalKnowledge = new ArrayList<>();
-    private List<NurseryVideosDO> airTransportation = new ArrayList<>();
-    private List<NurseryVideosDO> surfaceTransportation = new ArrayList<>();
-    private List<NurseryVideosDO> goodHabits = new ArrayList<>();
-    private List<NurseryVideosDO> fruits = new ArrayList<>();
-    private List<NurseryVideosDO> vegetables = new ArrayList<>();
-    private List<NurseryVideosDO> healthyFoods = new ArrayList<>();
-    private List<NurseryVideosDO> farmAnimals = new ArrayList<>();
-    private List<NurseryVideosDO> jungleAnimals = new ArrayList<>();
-    private List<NurseryVideosDO> alphabetNumberWriting = new ArrayList<>();
+    //Retrieved DOs with Value
+    private List<PlaygroupVideosDO> alphabetAToZ = new ArrayList<>();
+    private List<PlaygroupVideosDO> numbers1To20 = new ArrayList<>();
+    private List<PlaygroupVideosDO> rhymes = new ArrayList<>();
+    private List<PlaygroupVideosDO> stories = new ArrayList<>();
+    private List<PlaygroupVideosDO> waterTransportation = new ArrayList<>();
+    private List<PlaygroupVideosDO> airTransportation = new ArrayList<>();
+    private List<PlaygroupVideosDO> surfaceTransportation = new ArrayList<>();
+    private List<PlaygroupVideosDO> goodHabits = new ArrayList<>();
+    private List<PlaygroupVideosDO> fruits = new ArrayList<>();
+    private List<PlaygroupVideosDO> vegetables = new ArrayList<>();
+    private List<PlaygroupVideosDO> healthyFoods = new ArrayList<>();
+    private List<PlaygroupVideosDO> farmAnimals = new ArrayList<>();
+    private List<PlaygroupVideosDO> jungleAnimals = new ArrayList<>();
+    private List<PlaygroupVideosDO> generalKnowledge = new ArrayList<>();
 
     private List<String> downloadedVideoName = new ArrayList<>();
     private List<String> downloadedVideoId = new ArrayList<>();
     private List<String> downloadedCardImage = new ArrayList<>();
     private List<String> downloadedVideoDesc = new ArrayList<>();
 
-    private ArrayObjectAdapter rowsAdapter;
-
     public static List<String> offlineVideos = new ArrayList<>();
 
-    int downloadVideos = 0;
+    private ArrayObjectAdapter rowsAdapter;
 
-    public NurseryVideoList(Context context){
+    PlaygroupVideoList(Context context){
         this.context=context;
         AWSProvider awsProvider = new AWSProvider();
         dynamoDBClient = new AmazonDynamoDBClient(awsProvider.getCredentialsProvider(context));
@@ -86,15 +84,14 @@ public class NurseryVideoList {
                 .build();
     }
 
-    public ArrayObjectAdapter setupNurseryVideos() {
+    public ArrayObjectAdapter setupPlaygroupVideos() {
+        clearAllLists();  int downloadVideos = 0;
 
-        clearAllLists();
-
-        VIDEO_CATEGORY.add("PHONICS");
-        VIDEO_CATEGORY.add("NUMBERS & COUNTING");
+        VIDEO_CATEGORY.add("ALPHABET A TO Z");
+        VIDEO_CATEGORY.add("NUMBERS 1 TO 20 & COUNTING");
         VIDEO_CATEGORY.add("RHYMES");
         VIDEO_CATEGORY.add("STORIES");
-        VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
+        VIDEO_CATEGORY.add("WATER TRANSPORTATION");
         VIDEO_CATEGORY.add("AIR TRANSPORTATION");
         VIDEO_CATEGORY.add("SURFACE TRANSPORTATION");
         VIDEO_CATEGORY.add("GOOD HABITS");
@@ -103,7 +100,7 @@ public class NurseryVideoList {
         VIDEO_CATEGORY.add("HEALTHY FOODS");
         VIDEO_CATEGORY.add("FARM ANIMALS");
         VIDEO_CATEGORY.add("JUNGLE ANIMALS");
-        VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
+        VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
 
         try {
             downloadVideos = getTotalDownloadedProjects();
@@ -120,23 +117,21 @@ public class NurseryVideoList {
                 rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
                 CardPresenter cardPresenter = new CardPresenter();
 
-                if (downloadVideos != 0){
-                    VIDEO_CATEGORY.add("DOWNLOADED");
-                }
+                if (downloadVideos != 0){VIDEO_CATEGORY.add("DOWNLOADED");}
 
                 int i;
                 for (i = 0; i < VIDEO_CATEGORY.size(); i++) {
                     ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
                     actualVideoList.clear();
-                    int NUM_COLS = i;
+                    int NUM_COLS=i;
                     switch (i) {
                         case 0:
-                            NUM_COLS = phonics.size();
-                            updateActualList(phonics);
+                            NUM_COLS = alphabetAToZ.size();
+                            updateActualList(alphabetAToZ);
                             break;
                         case 1:
-                            NUM_COLS = numbersCounting.size();
-                            updateActualList(numbersCounting);
+                            NUM_COLS = numbers1To20.size();
+                            updateActualList(numbers1To20);
                             break;
                         case 2:
                             NUM_COLS = rhymes.size();
@@ -147,8 +142,8 @@ public class NurseryVideoList {
                             updateActualList(stories);
                             break;
                         case 4:
-                            NUM_COLS = generalKnowledge.size();
-                            updateActualList(generalKnowledge);
+                            NUM_COLS = waterTransportation.size();
+                            updateActualList(waterTransportation);
                             break;
                         case 5:
                             NUM_COLS = airTransportation.size();
@@ -183,8 +178,8 @@ public class NurseryVideoList {
                             updateActualList(jungleAnimals);
                             break;
                         case 13:
-                            NUM_COLS = alphabetNumberWriting.size();
-                            updateActualList(alphabetNumberWriting);
+                            NUM_COLS = generalKnowledge.size();
+                            updateActualList(generalKnowledge);
                             break;
                         case 14:
                             NUM_COLS = downloadVideos;
@@ -198,44 +193,66 @@ public class NurseryVideoList {
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
                 }
             } else {
-                setDownloadedVideos();
+                systemIsOfflineSoAddDownloaded();
             }
         } catch (Exception e) {
 
             e.printStackTrace();
         }
+
         return rowsAdapter;
+
     }
 
-    private void clearAllLists() {
-        downloadedVideoId.clear();
-        downloadedVideoDesc.clear();
-        downloadedCardImage.clear();
-        downloadedVideoName.clear();
-
-        offlineVideos.clear();
+    private void sortVideos() {
+        Collections.sort(alphabetAToZ, new PlaygroupVideoIdComparator());
+        Collections.sort(numbers1To20, new PlaygroupVideoIdComparator());
+        Collections.sort(rhymes, new PlaygroupVideoIdComparator());
+        Collections.sort(stories, new PlaygroupVideoIdComparator());
+        Collections.sort(waterTransportation, new PlaygroupVideoIdComparator());
+        Collections.sort(airTransportation, new PlaygroupVideoIdComparator());
+        Collections.sort(surfaceTransportation, new PlaygroupVideoIdComparator());
+        Collections.sort(goodHabits, new PlaygroupVideoIdComparator());
+        Collections.sort(fruits, new PlaygroupVideoIdComparator());
+        Collections.sort(vegetables, new PlaygroupVideoIdComparator());
+        Collections.sort(healthyFoods, new PlaygroupVideoIdComparator());
+        Collections.sort(farmAnimals, new PlaygroupVideoIdComparator());
+        Collections.sort(jungleAnimals, new PlaygroupVideoIdComparator());
+        Collections.sort(generalKnowledge, new PlaygroupVideoIdComparator());
     }
 
-    private void sortVideos(){
-        Collections.sort(phonics, new NurseryVideoIdComparator());
-        Collections.sort(numbersCounting, new NurseryVideoIdComparator());
-        Collections.sort(rhymes, new NurseryVideoIdComparator());
-        Collections.sort(stories, new NurseryVideoIdComparator());
-        Collections.sort(generalKnowledge, new NurseryVideoIdComparator());
-        Collections.sort(airTransportation, new NurseryVideoIdComparator());
-        Collections.sort(surfaceTransportation, new NurseryVideoIdComparator());
-        Collections.sort(goodHabits, new NurseryVideoIdComparator());
-        Collections.sort(fruits, new NurseryVideoIdComparator());
-        Collections.sort(vegetables, new NurseryVideoIdComparator());
-        Collections.sort(healthyFoods, new NurseryVideoIdComparator());
-        Collections.sort(farmAnimals, new NurseryVideoIdComparator());
-        Collections.sort(jungleAnimals, new NurseryVideoIdComparator());
-        Collections.sort(alphabetNumberWriting, new NurseryVideoIdComparator());
+    private void addAllDownloadedVideosToRow(int size) {
+        String[] title_desc = new String[3];
+        for(int j = 0;j<size;j++){
+            Video video = new Video();
+            video.setId(downloadedVideoId.get(j));
+            File textFile = new File(downloadedVideoDesc.get(j));
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(textFile));
+                String st;
+                int iterator = 0;
+                while ((st = br.readLine()) != null) {
+                    title_desc[iterator] = st;
+                    iterator++;
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+                Toast.makeText(context, "Exception : " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            video.setTitle(title_desc[0]);
+            video.setDescription(title_desc[1]);
+            video.setCardImageUrl(downloadedCardImage.get(j));
+            video.setVideoUrl(downloadedVideoName.get(j));
+            if(title_desc[2].equals("Playgroup")){
+                actualVideoList.add(video);
+                offlineVideos.add(video.getId());
+            }
+        }
     }
 
-    private void setDownloadedVideos(){
-
+    private void systemIsOfflineSoAddDownloaded() {
         int downloadVideos = 0;
+
         try {
             downloadVideos = getTotalDownloadedProjects();
         } catch (NullPointerException e){
@@ -251,7 +268,9 @@ public class NurseryVideoList {
 
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
             actualVideoList.clear();
+
             addAllDownloadedVideosToRow(downloadVideos);
+
             int i=0;
             while (i<actualVideoList.size()) {
                 listRowAdapter.add(actualVideoList.get(i));
@@ -276,12 +295,29 @@ public class NurseryVideoList {
             builder.setTitle("No Downloaded Videos");
             alertDialog = builder.create();
             alertDialog.show();
-
         }
     }
 
+    private void updateActualList(List<PlaygroupVideosDO> topic) {
+        Video video = new Video();
+        for(int i = 0;i<topic.size();i++){
+            video.setId(topic.get(i).getVideoId());
+            video.setTitle(topic.get(i).getVideoTitle());
+            video.setDescription(topic.get(i).getVideoDescription());
+            video.setCardImageUrl(topic.get(i).getVideoCardImg());
+            video.setVideoUrl(topic.get(i).getVideoUrl());
+            video.setVideoTopic(topic.get(i).getVideoTopic());
+            actualVideoList.add(video);
+            searchVideosList.add(video);
+        }
+    }
+
+    public List<String> getOfflineVideos(){
+        return offlineVideos;
+    }
+
     private int getTotalDownloadedProjects() {
-        File directory=new File(Environment.getExternalStorageDirectory()+"/BCT");
+        File directory=new File(Environment.getExternalStorageDirectory()+"/BCT/Playgroup");
         getDownloadedVideoNames(directory);
         return directory.list().length;
     }
@@ -310,50 +346,12 @@ public class NurseryVideoList {
         return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
     }
 
-    private void updateActualList(List<NurseryVideosDO> topic) {
-        for (int i=0; i<topic.size(); i++) {
-            Video video = new Video();
-            video.setId(topic.get(i).getVideoId());
-            video.setTitle(topic.get(i).getVideoTitle());
-            video.setDescription(topic.get(i).getVideoDescription());
-            video.setCardImageUrl(topic.get(i).getVideoCardImg());
-            video.setVideoUrl(topic.get(i).getVideoUrl());
-            video.setVideoTopic(topic.get(i).getVideoTopic());
-            actualVideoList.add(video);
-            searchVideosList.add(video);
-        }
-    }
-
-    private void addAllDownloadedVideosToRow(int size) {
-        String[] title_desc = new String[2];
-        for (int i = 0; i < size; i++) {
-            Video video = new Video();
-            video.setId(downloadedVideoId.get(i));
-            File textFile = new File(downloadedVideoDesc.get(i));
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(textFile));
-                String st;
-                int iterator = 0;
-                while ((st = br.readLine()) != null) {
-                    title_desc[iterator] = st;
-                    iterator++;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(context, "Exception : " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-            video.setTitle(title_desc[0]);
-            video.setDescription(title_desc[1]);
-            video.setVideoTopic(title_desc[2]);
-            video.setCardImageUrl(downloadedCardImage.get(i));
-            video.setVideoUrl(downloadedVideoName.get(i));
-            actualVideoList.add(video);
-            offlineVideos.add(video.getId());
-        }
-    }
-
-    public List<String> getOfflineVideos(){
-        return offlineVideos;
+    private void clearAllLists() {
+        downloadedVideoId.clear();
+        downloadedVideoDesc.clear();
+        downloadedCardImage.clear();
+        downloadedVideoName.clear();
+        offlineVideos.clear();
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -363,60 +361,59 @@ public class NurseryVideoList {
         protected Boolean doInBackground(String... strings) {
 
             try {
-                ScanRequest request = new ScanRequest().withTableName(Config.NURSERYTABLENAME);
+                ScanRequest request = new ScanRequest().withTableName(Config.PLAYGROUPTABLENAME);
                 ScanResult response = dynamoDBClient.scan(request);
                 List<Map<String, AttributeValue>> userRows = response.getItems();
                 for (Map<String, AttributeValue> map : userRows) {
-                    NurseryVideosDO nurseryVideosDO = dynamoDBMapper.load(NurseryVideosDO.class, map.get("video_id").getS(),
-                            map.get("video_title").getS());
+                    PlaygroupVideosDO playgroupVideosDO = dynamoDBMapper
+                            .load(PlaygroupVideosDO.class, map.get("video_id").getS(),
+                                    map.get("video_title").getS());
 
                     switch (map.get("video_topic").getS()){
-                        case "PHONICS" :
-                            phonics.add(nurseryVideosDO);
+                        case "ALPHABET A TO Z" :
+                            alphabetAToZ.add(playgroupVideosDO);
                             break;
-                        case "NUMBERS & COUNTING":
-                            numbersCounting.add(nurseryVideosDO);
+                        case "NUMBERS 1 TO 20":
+                            numbers1To20.add(playgroupVideosDO);
                             break;
                         case "RHYMES":
-                            rhymes.add(nurseryVideosDO);
+                            rhymes.add(playgroupVideosDO);
                             break;
                         case "STORIES":
-                            stories.add(nurseryVideosDO);
+                            stories.add(playgroupVideosDO);
                             break;
                         case "GENERAL KNOWLEDGE":
-                            generalKnowledge.add(nurseryVideosDO);
+                            generalKnowledge.add(playgroupVideosDO);
                             break;
                         case "AIR TRANSPORTATION" :
-                            airTransportation.add(nurseryVideosDO);
+                            airTransportation.add(playgroupVideosDO);
                             break;
                         case "SURFACE TRANSPORTATION":
-                            surfaceTransportation.add(nurseryVideosDO);
+                            surfaceTransportation.add(playgroupVideosDO);
                             break;
                         case "GOOD HABITS":
-                            goodHabits.add(nurseryVideosDO);
+                            goodHabits.add(playgroupVideosDO);
                             break;
                         case "FRUITS":
-                            fruits.add(nurseryVideosDO);
+                            fruits.add(playgroupVideosDO);
                             break;
                         case "VEGETABLES":
-                            vegetables.add(nurseryVideosDO);
+                            vegetables.add(playgroupVideosDO);
                             break;
                         case "HEALTHY FOODS" :
-                            healthyFoods.add(nurseryVideosDO);
+                            healthyFoods.add(playgroupVideosDO);
                             break;
                         case "FARM ANIMALS":
-                            farmAnimals.add(nurseryVideosDO);
+                            farmAnimals.add(playgroupVideosDO);
                             break;
                         case "JUNGLE ANIMALS":
-                            jungleAnimals.add(nurseryVideosDO);
+                            jungleAnimals.add(playgroupVideosDO);
                             break;
-                        case "ALPHABET & NUMBER WRITING":
-                            alphabetNumberWriting.add(nurseryVideosDO);
+                        case "WATER TRANSPORTATION":
+                            waterTransportation.add(playgroupVideosDO);
                             break;
                     }
                 }
-
-
 
                 return true;
             } catch (AmazonClientException e){
@@ -443,11 +440,10 @@ public class NurseryVideoList {
         }
     }
 
-    private class NurseryVideoIdComparator implements Comparator<NurseryVideosDO> {
+    private class PlaygroupVideoIdComparator implements Comparator<PlaygroupVideosDO> {
         @Override
-        public int compare(NurseryVideosDO v1, NurseryVideosDO v2) {
+        public int compare(PlaygroupVideosDO v1, PlaygroupVideosDO v2) {
             return v1.getVideoId().compareTo(v2.getVideoId());
         }
     }
-
 }

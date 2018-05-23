@@ -161,7 +161,7 @@ public class VideoList {
 
         if (downloadVideos != 0){
 
-            VIDEO_CATEGORY.add("Downloaded");
+            VIDEO_CATEGORY.add("DOWNLOADED");
 
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
             actualVideoList.clear();
