@@ -30,4 +30,5 @@ dependencies {
     implementation 'com.github.d-max:spots-dialog:0.7@aar'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     implementation 'com.android.support:design:27.1.1'
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }

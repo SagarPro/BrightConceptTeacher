@@ -159,7 +159,7 @@ public class MainFrag extends BrowseFragment {
         int width = mMetrics.widthPixels;
         int height = mMetrics.heightPixels;
         Glide.with(getActivity())
-                .load(uri)
+                .load(R.color.main_bg)
                 .centerCrop()
                 .error(mDefaultBackground)
                 .into(new SimpleTarget<GlideDrawable>(width, height) {
