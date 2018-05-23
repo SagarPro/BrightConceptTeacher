@@ -97,10 +97,10 @@ public class NurseryFrag extends BrowseFragment {
     public void loadRows() {
 
         offlineVideos.clear();
-        VideoList videoList = new VideoList(getContext());
-        ArrayObjectAdapter rowsAdapter =  videoList.setupMovies();
+        NurseryVideoList nurseryVideoList = new NurseryVideoList(getContext());
+        ArrayObjectAdapter rowsAdapter =  nurseryVideoList.setupNurseryVideos();
         setAdapter(rowsAdapter);
-        offlineVideos.addAll(videoList.getOfflineVideos());
+        offlineVideos.addAll(nurseryVideoList.getOfflineVideos());
 
     }
 

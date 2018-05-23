@@ -57,6 +57,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -84,8 +85,8 @@ public class VideoDetailsFragment extends DetailsFragment {
     private static final int ACTION_PLAY = 3;
     private static final int ACTION_REMOVE = 4;
 
-    private static final int DETAIL_THUMB_WIDTH = 313;
-    private static final int DETAIL_THUMB_HEIGHT = 176;
+    private static final int DETAIL_THUMB_WIDTH = 276;
+    private static final int DETAIL_THUMB_HEIGHT = 276;
 
     private Video mSelectedVideo;
 
@@ -127,10 +128,11 @@ public class VideoDetailsFragment extends DetailsFragment {
 
     private void initializeBackground(Video data) {
         mDetailsBackground.enableParallax();
+
         Glide.with(getActivity())
-                .load(R.drawable.bct_bg)
+                .load(R.drawable.bct3)
                 .asBitmap()
-                .centerCrop()
+                .asIs()
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(Bitmap bitmap,
