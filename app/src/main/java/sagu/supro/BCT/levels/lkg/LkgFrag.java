@@ -53,7 +53,7 @@ public class LkgFrag extends BrowseFragment {
 
     private List<String> offlineVideos = new ArrayList<>();
 
-    public static LkgFrag mainFrag;
+    public static LkgFrag lkgFrag;
 
     AlertDialog progressDialog;
 
@@ -61,7 +61,7 @@ public class LkgFrag extends BrowseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mainFrag = this;
+        lkgFrag = this;
 
         progressDialog = new SpotsDialog(getActivity(), "This may take a while...");
         progressDialog.show();
