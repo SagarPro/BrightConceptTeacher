@@ -75,13 +75,11 @@ public class NurseryVideoList {
     private List<String> downloadedCardImage = new ArrayList<>();
     private List<String> downloadedVideoDesc = new ArrayList<>();
 
-    //private ArrayObjectAdapter listRowAdapter;
+    private ArrayObjectAdapter rowsAdapter;
 
     public static List<String> offlineVideos = new ArrayList<>();
 
     int downloadVideos = 0;
-
-    private ArrayObjectAdapter rowsAdapter;
 
     public NurseryVideoList(Context context){
         this.context=context;
@@ -97,6 +95,21 @@ public class NurseryVideoList {
     public ArrayObjectAdapter setupNurseryVideos() {
 
         clearAllLists();
+
+        VIDEO_CATEGORY.add("PHONICS");
+        VIDEO_CATEGORY.add("NUMBERS & COUNTING");
+        VIDEO_CATEGORY.add("RHYMES");
+        VIDEO_CATEGORY.add("STORIES");
+        VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
+        VIDEO_CATEGORY.add("AIR TRANSPORTATION");
+        VIDEO_CATEGORY.add("SURFACE TRANSPORTATION");
+        VIDEO_CATEGORY.add("GOOD HABITS");
+        VIDEO_CATEGORY.add("FRUITS");
+        VIDEO_CATEGORY.add("VEGETABLES");
+        VIDEO_CATEGORY.add("HEALTHY FOODS");
+        VIDEO_CATEGORY.add("FARM ANIMALS");
+        VIDEO_CATEGORY.add("JUNGLE ANIMALS");
+        VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
 
         try {
             downloadVideos = getTotalDownloadedProjects();
@@ -121,61 +134,77 @@ public class NurseryVideoList {
                 for (i = 0; i < VIDEO_CATEGORY.size(); i++) {
                     ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
                     actualVideoList.clear();
+                    int NUM_COLS = i;
                     switch (i) {
                         case 0:
+                            NUM_COLS = phonics.size();
                             updateActualList(phonics);
                             break;
                         case 1:
+                            NUM_COLS = numbersCounting.size();
                             updateActualList(numbersCounting);
                             break;
                         case 2:
+                            NUM_COLS = rhymes.size();
                             updateActualList(rhymes);
                             break;
                         case 3:
+                            NUM_COLS = stories.size();
                             updateActualList(stories);
                             break;
                         case 4:
+                            NUM_COLS = generalKnowledge.size();
                             updateActualList(generalKnowledge);
                             break;
                         case 5:
+                            NUM_COLS = airTransportation.size();
                             updateActualList(airTransportation);
                             break;
                         case 6:
+                            NUM_COLS = surfaceTransportation.size();
                             updateActualList(surfaceTransportation);
                             break;
                         case 7:
+                            NUM_COLS = goodHabits.size();
                             updateActualList(goodHabits);
                             break;
                         case 8:
+                            NUM_COLS = fruits.size();
                             updateActualList(fruits);
                             break;
                         case 9:
+                            NUM_COLS = vegetables.size();
                             updateActualList(vegetables);
                             break;
                         case 10:
+                            NUM_COLS = healthyFoods.size();
                             updateActualList(healthyFoods);
                             break;
                         case 11:
+                            NUM_COLS = farmAnimals.size();
                             updateActualList(farmAnimals);
                             break;
                         case 12:
+                            NUM_COLS = jungleAnimals.size();
                             updateActualList(jungleAnimals);
                             break;
                         case 13:
+                            NUM_COLS = alphabetNumberWriting.size();
                             updateActualList(alphabetNumberWriting);
                             break;
                         case 14:
+                            NUM_COLS = downloadVideos;
                             addAllDownloadedVideosToRow(downloadVideos);
                             break;
                     }
-                    for (int j = 0; j < i; j++) {
+                    for (int j = 0; j < NUM_COLS; j++) {
                         listRowAdapter.add(actualVideoList.get(j));
                     }
                     HeaderItem header = new HeaderItem(i, VIDEO_CATEGORY.get(i));
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
                 }
             } else {
-                //setDownloadedVideos();
+                setDownloadedVideos();
             }
         } catch (Exception e) {
 
@@ -191,6 +220,53 @@ public class NurseryVideoList {
         downloadedVideoName.clear();
 
         offlineVideos.clear();
+    }
+
+    private void setDownloadedVideos(){
+
+        int downloadVideos = 0;
+        try {
+            downloadVideos = getTotalDownloadedProjects();
+        } catch (NullPointerException e){
+            Log.d("NullPointerException", e.getMessage());
+        }
+
+        rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+        CardPresenter cardPresenter = new CardPresenter();
+
+        if (downloadVideos != 0){
+
+            VIDEO_CATEGORY.add("Downloaded");
+
+            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+            actualVideoList.clear();
+            addAllDownloadedVideosToRow(downloadVideos);
+            int i=0;
+            while (i<actualVideoList.size()) {
+                listRowAdapter.add(actualVideoList.get(i));
+                i++;
+            }
+            searchVideosList.addAll(actualVideoList);
+
+            HeaderItem header = new HeaderItem(0, VIDEO_CATEGORY.get(0));
+            rowsAdapter.add(new ListRow(header, listRowAdapter));
+
+        } else {
+
+            AlertDialog alertDialog;
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            builder.setTitle("No Downloaded Videos");
+            alertDialog = builder.create();
+            alertDialog.show();
+
+        }
     }
 
     private int getTotalDownloadedProjects() {
@@ -224,8 +300,8 @@ public class NurseryVideoList {
     }
 
     private void updateActualList(List<NurseryVideosDO> topic) {
-        Video video = new Video();
         for (int i=0; i<topic.size(); i++) {
+            Video video = new Video();
             video.setId(topic.get(i).getVideoId());
             video.setTitle(topic.get(i).getVideoTitle());
             video.setDescription(topic.get(i).getVideoDescription());
@@ -264,114 +340,12 @@ public class NurseryVideoList {
         }
     }
 
-    /*private ArrayObjectAdapter updateActualList() {
-
-        for (int i=0; i<nurseryVideos.size(); i++){
-            switch (nurseryVideos.get(i).getVideoTopic()){
-                        case "PHONICS" :
-                            phonics.add(nurseryVideos.get(i));
-                            //actualVideoList.add(video);
-                            break;
-                        case "NUMBERS & COUNTING":
-                            numbersCounting.add(nurseryVideos.get(i));
-                            break;
-                        case "RHYMES":
-                            rhymes.add(nurseryVideos.get(i));
-                            break;
-                        case "STORIES":
-                            stories.add(nurseryVideos.get(i));
-                            break;
-                        case "GENERAL KNOWLEDGE":
-                            generalKnowledge.add(nurseryVideos.get(i));
-                            break;
-                        case "AIR TRANSPORTATION" :
-                            airTransportation.add(nurseryVideos.get(i));
-                            break;
-                        case "SURFACE TRANSPORTATION":
-                            surfaceTransportation.add(nurseryVideos.get(i));
-                            break;
-                        case "GOOD HABITS":
-                            goodHabits.add(nurseryVideos.get(i));
-                            break;
-                        case "FRUITS":
-                            fruits.add(nurseryVideos.get(i));
-                            break;
-                        case "VEGETABLES":
-                            vegetables.add(nurseryVideos.get(i));
-                            break;
-                        case "HEALTHY FOODS" :
-                            healthyFoods.add(nurseryVideos.get(i));
-                            break;
-                        case "FARM ANIMALS":
-                            farmAnimals.add(nurseryVideos.get(i));
-                            break;
-                        case "JUNGLE ANIMALS":
-                            jungleAnimals.add(nurseryVideos.get(i));
-                            break;
-                        case "ALPHABET & NUMBER WRITING":
-                            alphabetNumberWriting.add(nurseryVideos.get(i));
-                            break;
-                *//*case "downloaded":
-                    String[] title_desc = new String[2];
-                    for(int i1 = 0;i<downloadVideos;i++){
-                        Video video = new Video();
-                        video.setId(downloadedVideoId.get(i1));
-                        File textFile = new File(downloadedVideoDesc.get(i1));
-                        try {
-                            BufferedReader br = new BufferedReader(new FileReader(textFile));
-                            String st;
-                            int iterator = 0;
-                            while ((st = br.readLine()) != null) {
-                                title_desc[iterator] = st;
-                                iterator++;
-                            }
-                        }catch (Exception e){
-                            e.printStackTrace();
-                            Toast.makeText(context, "Exception : " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                        video.setTitle(title_desc[0]);
-                        video.setDescription(title_desc[1]);
-                        video.setCardImageUrl(downloadedCardImage.get(i1));
-                        video.setVideoUrl(downloadedVideoName.get(i1));
-                        actualVideoList.add(video);
-                        offlineVideos.add(video.getId());
-                    }
-                    break;*//*
-                    }
-
-            Video video = new Video();
-
-            video.setId(nurseryVideos.get(i).getVideoId());
-            video.setTitle(nurseryVideos.get(i).getVideoTitle());
-            video.setDescription(nurseryVideos.get(i).getVideoDescription());
-            video.setCardImageUrl(nurseryVideos.get(i).getVideoCardImg());
-            video.setVideoUrl(nurseryVideos.get(i).getVideoUrl());
-            video.setVideoTopic(nurseryVideos.get(i).getVideoTopic());
-
-            actualVideoList.add(video);
-
-            for (int j = 0; j < i; j++) {
-                listRowAdapter.add(actualVideoList.get(j));
-            }
-            HeaderItem header = new HeaderItem(i, VIDEO_CATEGORY.get(i));
-            rowsAdapter.add(new ListRow(header, listRowAdapter));
-        }
-
-        return rowsAdapter;
-
-    }*/
-
     public List<String> getOfflineVideos(){
         return offlineVideos;
     }
 
     @SuppressLint("StaticFieldLeak")
     class FetchVideoDetails extends AsyncTask<String, Void, Boolean> {
-
-        @Override
-        protected void onPreExecute() {
-            VIDEO_CATEGORY.clear();
-        }
 
         @Override
         protected Boolean doInBackground(String... strings) {
@@ -383,9 +357,6 @@ public class NurseryVideoList {
                 for (Map<String, AttributeValue> map : userRows) {
                     NurseryVideosDO nurseryVideosDO = dynamoDBMapper.load(NurseryVideosDO.class, map.get("video_id").getS(),
                             map.get("video_title").getS());
-                    //nurseryVideos.add(nurseryVideosDO);
-                    if (!VIDEO_CATEGORY.contains(map.get("video_topic").getS()))
-                        VIDEO_CATEGORY.add(map.get("video_topic").getS());
 
                     switch (map.get("video_topic").getS()){
                         case "PHONICS" :
