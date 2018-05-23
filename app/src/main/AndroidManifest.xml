@@ -49,7 +49,7 @@
         <activity android:name=".levels.playgroup.PlaygroupActivity" />
         <activity android:name=".levels.nursery.NurseryActivity" />
         <activity android:name=".levels.lkg.LkgActivity" />
-        <activity android:name=".levels.ukg.UkgActivity"></activity>
+        <activity android:name=".levels.ukg.UkgActivity"/>
     </application>
 
 </manifest>
