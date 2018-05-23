@@ -57,7 +57,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -275,7 +274,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                                         public void onStateChanged(int id, TransferState state) {
                                             if (TransferState.COMPLETED == state) {
 
-                                                String desc = mSelectedVideo.getTitle() + "\n" + mSelectedVideo.getDescription() + "\n" + mSelectedVideo.getVideoTopic();
+                                                String desc = mSelectedVideo.getTitle() + "\n" + mSelectedVideo.getDescription() + "\n" + level;
                                                 generateNoteOnSD(mSelectedVideo.getId() + ".txt", desc);
 
                                                 actionAdapter.clear();

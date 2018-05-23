@@ -90,8 +90,8 @@ public class PlaygroupFrag extends BrowseFragment {
     public void loadRows() {
 
         offlineVideos.clear();
-        VideoList videoList = new VideoList(getContext());
-        ArrayObjectAdapter rowsAdapter =  videoList.setupMovies();
+        PlaygroupVideoList videoList = new PlaygroupVideoList(getContext());
+        ArrayObjectAdapter rowsAdapter =  videoList.setupPlaygroupVideos();
         setAdapter(rowsAdapter);
         offlineVideos.addAll(videoList.getOfflineVideos());
 
@@ -164,6 +164,7 @@ public class PlaygroupFrag extends BrowseFragment {
                 Video mvideoDO = (Video) item;
                 Log.d(TAG, "Item: " + item.toString());
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
+                intent.putExtra("LEVEL","Playgroup");
                 intent.putExtra(DetailsActivity.VIDEO, mvideoDO);
                 intent.putStringArrayListExtra("OfflineVideos", (ArrayList<String>) offlineVideos);
 
