@@ -52,7 +52,7 @@ public class PlaygroupFrag extends BrowseFragment {
 
     private List<String> offlineVideos = new ArrayList<>();
 
-    public static PlaygroupFrag mainFrag;
+    public static PlaygroupFrag playgroupFrag;
 
     AlertDialog progressDialog;
 
@@ -60,7 +60,7 @@ public class PlaygroupFrag extends BrowseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mainFrag = this;
+        playgroupFrag = this;
 
         progressDialog = new SpotsDialog(getActivity(), "This may take a while...");
         progressDialog.show();

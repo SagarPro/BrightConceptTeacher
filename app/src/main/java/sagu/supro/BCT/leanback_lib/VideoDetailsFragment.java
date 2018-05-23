@@ -70,6 +70,10 @@ import sagu.supro.BCT.R;
 import sagu.supro.BCT.tv.MainScreen;
 import sagu.supro.BCT.utils.Config;
 
+import static sagu.supro.BCT.levels.lkg.LkgFrag.lkgFrag;
+import static sagu.supro.BCT.levels.nursery.NurseryFrag.nurseryFrag;
+import static sagu.supro.BCT.levels.playgroup.PlaygroupFrag.playgroupFrag;
+import static sagu.supro.BCT.levels.ukg.UkgFrag.ukgFrag;
 import static sagu.supro.BCT.tv.MainFrag.mainFrag;
 
 /*
@@ -98,6 +102,7 @@ public class VideoDetailsFragment extends DetailsFragment {
     ArrayObjectAdapter actionAdapter = new ArrayObjectAdapter();
 
     private List<String> offlineVideos = new ArrayList<>();
+    private String level;
 
     ProgressBar progressBar;
     TextView showProg;
@@ -108,6 +113,8 @@ public class VideoDetailsFragment extends DetailsFragment {
         super.onCreate(savedInstanceState);
 
         mDetailsBackground = new DetailsFragmentBackgroundController(this);
+
+        level = getActivity().getIntent().getStringExtra("LEVEL");
 
         mSelectedVideo =
                 (Video) getActivity().getIntent().getSerializableExtra(DetailsActivity.VIDEO);
@@ -268,7 +275,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                                         public void onStateChanged(int id, TransferState state) {
                                             if (TransferState.COMPLETED == state) {
 
-                                                String desc = mSelectedVideo.getTitle() + "\n" + mSelectedVideo.getDescription();
+                                                String desc = mSelectedVideo.getTitle() + "\n" + mSelectedVideo.getDescription() + "\n" + mSelectedVideo.getVideoTopic();
                                                 generateNoteOnSD(mSelectedVideo.getId() + ".txt", desc);
 
                                                 actionAdapter.clear();
@@ -361,7 +368,21 @@ public class VideoDetailsFragment extends DetailsFragment {
     }
 
     private void refreshAdapter(){
-        mainFrag.loadRows();
+        switch (level){
+            case "Playgroup":
+                playgroupFrag.loadRows();
+                break;
+            case "Nursery":
+                nurseryFrag.loadRows();
+                break;
+            case "LKG":
+                lkgFrag.loadRows();
+                break;
+            case "UKG":
+                ukgFrag.loadRows();
+                break;
+        }
+        //mainFrag.loadRows();
     }
 
     private void generateNoteOnSD(String sFileName, String sBody) {

@@ -59,7 +59,7 @@ public class NurseryFrag extends BrowseFragment {
 
     private List<String> offlineVideos = new ArrayList<>();
 
-    public static NurseryFrag mainFrag;
+    public static NurseryFrag nurseryFrag;
 
     AlertDialog progressDialog;
 
@@ -67,7 +67,7 @@ public class NurseryFrag extends BrowseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mainFrag = this;
+        nurseryFrag = this;
 
         progressDialog = new SpotsDialog(getActivity(), "This may take a while...");
         progressDialog.show();
@@ -172,6 +172,7 @@ public class NurseryFrag extends BrowseFragment {
                 Log.d(TAG, "Item: " + item.toString());
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
                 intent.putExtra(DetailsActivity.VIDEO, mvideoDO);
+                intent.putExtra("LEVEL", "Nursery");
                 intent.putStringArrayListExtra("OfflineVideos", (ArrayList<String>) offlineVideos);
 
                 Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(

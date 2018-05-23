@@ -121,13 +121,13 @@ public class NurseryVideoList {
             Boolean bgStatus = new FetchVideoDetails().execute().get();
             if (bgStatus) {
 
-                Collections.sort(nurseryVideos, new NurseryVideoIdComparator());
+                sortVideos();
 
                 rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
                 CardPresenter cardPresenter = new CardPresenter();
 
                 if (downloadVideos != 0){
-                    VIDEO_CATEGORY.add("Downloaded");
+                    VIDEO_CATEGORY.add("DOWNLOADED");
                 }
 
                 int i;
@@ -222,6 +222,23 @@ public class NurseryVideoList {
         offlineVideos.clear();
     }
 
+    private void sortVideos(){
+        Collections.sort(phonics, new NurseryVideoIdComparator());
+        Collections.sort(numbersCounting, new NurseryVideoIdComparator());
+        Collections.sort(rhymes, new NurseryVideoIdComparator());
+        Collections.sort(stories, new NurseryVideoIdComparator());
+        Collections.sort(generalKnowledge, new NurseryVideoIdComparator());
+        Collections.sort(airTransportation, new NurseryVideoIdComparator());
+        Collections.sort(surfaceTransportation, new NurseryVideoIdComparator());
+        Collections.sort(goodHabits, new NurseryVideoIdComparator());
+        Collections.sort(fruits, new NurseryVideoIdComparator());
+        Collections.sort(vegetables, new NurseryVideoIdComparator());
+        Collections.sort(healthyFoods, new NurseryVideoIdComparator());
+        Collections.sort(farmAnimals, new NurseryVideoIdComparator());
+        Collections.sort(jungleAnimals, new NurseryVideoIdComparator());
+        Collections.sort(alphabetNumberWriting, new NurseryVideoIdComparator());
+    }
+
     private void setDownloadedVideos(){
 
         int downloadVideos = 0;
@@ -236,7 +253,7 @@ public class NurseryVideoList {
 
         if (downloadVideos != 0){
 
-            VIDEO_CATEGORY.add("Downloaded");
+            VIDEO_CATEGORY.add("DOWNLOADED");
 
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
             actualVideoList.clear();
@@ -333,6 +350,7 @@ public class NurseryVideoList {
             }
             video.setTitle(title_desc[0]);
             video.setDescription(title_desc[1]);
+            video.setVideoTopic(title_desc[2]);
             video.setCardImageUrl(downloadedCardImage.get(i));
             video.setVideoUrl(downloadedVideoName.get(i));
             actualVideoList.add(video);
