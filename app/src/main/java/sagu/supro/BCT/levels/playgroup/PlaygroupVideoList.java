@@ -87,21 +87,6 @@ public class PlaygroupVideoList {
     public ArrayObjectAdapter setupPlaygroupVideos() {
         clearAllLists();  int downloadVideos = 0;
 
-        VIDEO_CATEGORY.add("ALPHABET A TO Z");
-        VIDEO_CATEGORY.add("NUMBERS 1 TO 20 & COUNTING");
-        VIDEO_CATEGORY.add("RHYMES");
-        VIDEO_CATEGORY.add("STORIES");
-        VIDEO_CATEGORY.add("WATER TRANSPORTATION");
-        VIDEO_CATEGORY.add("AIR TRANSPORTATION");
-        VIDEO_CATEGORY.add("SURFACE TRANSPORTATION");
-        VIDEO_CATEGORY.add("GOOD HABITS");
-        VIDEO_CATEGORY.add("FRUITS");
-        VIDEO_CATEGORY.add("VEGETABLES");
-        VIDEO_CATEGORY.add("HEALTHY FOODS");
-        VIDEO_CATEGORY.add("FARM ANIMALS");
-        VIDEO_CATEGORY.add("JUNGLE ANIMALS");
-        VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
-
         try {
             downloadVideos = getTotalDownloadedProjects();
         } catch (NullPointerException e){
@@ -111,6 +96,21 @@ public class PlaygroupVideoList {
         try {
             Boolean bgStatus = new FetchVideoDetails().execute().get();
             if (bgStatus) {
+
+                VIDEO_CATEGORY.add("ALPHABET A TO Z");
+                VIDEO_CATEGORY.add("NUMBERS 1 TO 20 & COUNTING");
+                VIDEO_CATEGORY.add("RHYMES");
+                VIDEO_CATEGORY.add("STORIES");
+                VIDEO_CATEGORY.add("WATER TRANSPORTATION");
+                VIDEO_CATEGORY.add("AIR TRANSPORTATION");
+                VIDEO_CATEGORY.add("SURFACE TRANSPORTATION");
+                VIDEO_CATEGORY.add("GOOD HABITS");
+                VIDEO_CATEGORY.add("FRUITS");
+                VIDEO_CATEGORY.add("VEGETABLES");
+                VIDEO_CATEGORY.add("HEALTHY FOODS");
+                VIDEO_CATEGORY.add("FARM ANIMALS");
+                VIDEO_CATEGORY.add("JUNGLE ANIMALS");
+                VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
 
                 sortVideos();
 
@@ -193,7 +193,7 @@ public class PlaygroupVideoList {
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
                 }
             } else {
-                systemIsOfflineSoAddDownloaded();
+                systemIsOfflineSoAddDownloaded(downloadVideos);
             }
         } catch (Exception e) {
 
@@ -250,14 +250,7 @@ public class PlaygroupVideoList {
         }
     }
 
-    private void systemIsOfflineSoAddDownloaded() {
-        int downloadVideos = 0;
-
-        try {
-            downloadVideos = getTotalDownloadedProjects();
-        } catch (NullPointerException e){
-            Log.d("NullPointerException", e.getMessage());
-        }
+    private void systemIsOfflineSoAddDownloaded(int downloadVideos) {
 
         rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         CardPresenter cardPresenter = new CardPresenter();

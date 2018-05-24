@@ -90,21 +90,6 @@ public class NurseryVideoList {
 
         clearAllLists();
 
-        VIDEO_CATEGORY.add("PHONICS");
-        VIDEO_CATEGORY.add("NUMBERS & COUNTING");
-        VIDEO_CATEGORY.add("RHYMES");
-        VIDEO_CATEGORY.add("STORIES");
-        VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
-        VIDEO_CATEGORY.add("AIR TRANSPORTATION");
-        VIDEO_CATEGORY.add("SURFACE TRANSPORTATION");
-        VIDEO_CATEGORY.add("GOOD HABITS");
-        VIDEO_CATEGORY.add("FRUITS");
-        VIDEO_CATEGORY.add("VEGETABLES");
-        VIDEO_CATEGORY.add("HEALTHY FOODS");
-        VIDEO_CATEGORY.add("FARM ANIMALS");
-        VIDEO_CATEGORY.add("JUNGLE ANIMALS");
-        VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
-
         try {
             downloadVideos = getTotalDownloadedProjects();
         } catch (NullPointerException e){
@@ -114,6 +99,21 @@ public class NurseryVideoList {
         try {
             Boolean bgStatus = new FetchVideoDetails().execute().get();
             if (bgStatus) {
+
+                VIDEO_CATEGORY.add("PHONICS");
+                VIDEO_CATEGORY.add("NUMBERS & COUNTING");
+                VIDEO_CATEGORY.add("RHYMES");
+                VIDEO_CATEGORY.add("STORIES");
+                VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
+                VIDEO_CATEGORY.add("AIR TRANSPORTATION");
+                VIDEO_CATEGORY.add("SURFACE TRANSPORTATION");
+                VIDEO_CATEGORY.add("GOOD HABITS");
+                VIDEO_CATEGORY.add("FRUITS");
+                VIDEO_CATEGORY.add("VEGETABLES");
+                VIDEO_CATEGORY.add("HEALTHY FOODS");
+                VIDEO_CATEGORY.add("FARM ANIMALS");
+                VIDEO_CATEGORY.add("JUNGLE ANIMALS");
+                VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
 
                 sortVideos();
 
@@ -198,7 +198,7 @@ public class NurseryVideoList {
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
                 }
             } else {
-                setDownloadedVideos();
+                setDownloadedVideos(downloadVideos);
             }
         } catch (Exception e) {
 
@@ -233,14 +233,7 @@ public class NurseryVideoList {
         Collections.sort(alphabetNumberWriting, new NurseryVideoIdComparator());
     }
 
-    private void setDownloadedVideos(){
-
-        int downloadVideos = 0;
-        try {
-            downloadVideos = getTotalDownloadedProjects();
-        } catch (NullPointerException e){
-            Log.d("NullPointerException", e.getMessage());
-        }
+    private void setDownloadedVideos(int downloadVideos){
 
         rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         CardPresenter cardPresenter = new CardPresenter();
