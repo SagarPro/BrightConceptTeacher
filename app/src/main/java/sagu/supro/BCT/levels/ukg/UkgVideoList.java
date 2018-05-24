@@ -82,11 +82,6 @@ public class UkgVideoList {
 
         clearAllLists();
 
-        VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
-        VIDEO_CATEGORY.add("RHYMES");
-        VIDEO_CATEGORY.add("PHONICS");
-        VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
-
         try {
             downloadVideos = getTotalDownloadedProjects();
         } catch (NullPointerException e){
@@ -96,6 +91,11 @@ public class UkgVideoList {
         try {
             Boolean bgStatus = new FetchVideoDetails().execute().get();
             if (bgStatus) {
+
+                VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
+                VIDEO_CATEGORY.add("RHYMES");
+                VIDEO_CATEGORY.add("PHONICS");
+                VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
 
                 sortVideos();
 
@@ -140,7 +140,7 @@ public class UkgVideoList {
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
                 }
             } else {
-                setDownloadedVideos();
+                setDownloadedVideos(downloadVideos);
             }
         } catch (Exception e) {
 
@@ -165,14 +165,7 @@ public class UkgVideoList {
         Collections.sort(alphabetNumberWriting, new UkgVideoIdComparator());
     }
 
-    private void setDownloadedVideos(){
-
-        int downloadVideos = 0;
-        try {
-            downloadVideos = getTotalDownloadedProjects();
-        } catch (NullPointerException e){
-            Log.d("NullPointerException", e.getMessage());
-        }
+    private void setDownloadedVideos(int downloadVideos){
 
         rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         CardPresenter cardPresenter = new CardPresenter();

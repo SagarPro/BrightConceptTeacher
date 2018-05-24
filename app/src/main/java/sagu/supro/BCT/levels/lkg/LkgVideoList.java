@@ -79,12 +79,6 @@ public class LkgVideoList {
     public ArrayObjectAdapter setupLkgVideos() {
         clearAllLists();  int downloadVideos = 0;
 
-        VIDEO_CATEGORY.add("GOOD HABITS & SAFTEY");
-        VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
-        VIDEO_CATEGORY.add("PHONICS");
-        VIDEO_CATEGORY.add("RHYMES");
-        VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
-
         try {
             downloadVideos = getTotalDownloadedProjects();
         } catch (NullPointerException e){
@@ -94,6 +88,12 @@ public class LkgVideoList {
         try {
             Boolean bgStatus = new FetchVideoDetails().execute().get();
             if (bgStatus) {
+
+                VIDEO_CATEGORY.add("GOOD HABITS & SAFTEY");
+                VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
+                VIDEO_CATEGORY.add("PHONICS");
+                VIDEO_CATEGORY.add("RHYMES");
+                VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
 
                 sortVideos();
 
@@ -140,7 +140,7 @@ public class LkgVideoList {
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
                 }
             } else {
-                systemIsOfflineSoAddDownloaded();
+                systemIsOfflineSoAddDownloaded(downloadVideos);
             }
         } catch (Exception e) {
 
@@ -188,14 +188,7 @@ public class LkgVideoList {
         }
     }
 
-    private void systemIsOfflineSoAddDownloaded() {
-        int downloadVideos = 0;
-
-        try {
-            downloadVideos = getTotalDownloadedProjects();
-        } catch (NullPointerException e){
-            Log.d("NullPointerException", e.getMessage());
-        }
+    private void systemIsOfflineSoAddDownloaded(int downloadVideos) {
 
         rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         CardPresenter cardPresenter = new CardPresenter();

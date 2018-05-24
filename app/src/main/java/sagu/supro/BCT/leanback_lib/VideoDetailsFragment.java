@@ -214,7 +214,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                         break;
                     case ACTION_DOWNLOAD:
 
-                        if (offlineVideos.size() < 10) {
+                        if (offlineVideos.size() < 15) {
 
                         final AlertDialog alertDialog;
                         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -328,7 +328,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                         });
 
                         } else {
-                            showErrorToUser("Download Limit Exceeded, Only 10 Offline Videos Allowed.\nDelete a video and try again.");
+                            showErrorToUser("Download Limit Exceeded, Only 15 Offline Videos Allowed.\nDelete a video and try again.");
                         }
 
                         break;
