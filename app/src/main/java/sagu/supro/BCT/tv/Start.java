@@ -121,8 +121,6 @@ public class Start extends Activity {
         @Override
         protected void onPreExecute() {
             progressDialog = new SpotsDialog(Start.this);
-            //dialog = new SpotsDialog(Start.this,"Custom Loading Message");
-            //dialog = new SpotsDialog(Start.this,"Custom Theme");
             progressDialog.show();
         }
 
