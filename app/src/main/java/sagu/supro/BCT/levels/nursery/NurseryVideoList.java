@@ -43,7 +43,7 @@ public class NurseryVideoList {
 
     private List<String> VIDEO_CATEGORY = new ArrayList<>();
     private List<Video> actualVideoList = new ArrayList<>();
-    public static List<Video> searchVideosList = new ArrayList<>();
+    public static List<Video> n_searchVideosList = new ArrayList<>();
 
     private AmazonDynamoDBClient dynamoDBClient;
     private DynamoDBMapper dynamoDBMapper;
@@ -250,7 +250,7 @@ public class NurseryVideoList {
                 listRowAdapter.add(actualVideoList.get(i));
                 i++;
             }
-            searchVideosList.addAll(actualVideoList);
+            n_searchVideosList.addAll(actualVideoList);
 
             HeaderItem header = new HeaderItem(0, VIDEO_CATEGORY.get(0));
             rowsAdapter.add(new ListRow(header, listRowAdapter));
@@ -313,7 +313,7 @@ public class NurseryVideoList {
             video.setVideoUrl(topic.get(i).getVideoUrl());
             video.setVideoTopic(topic.get(i).getVideoTopic());
             actualVideoList.add(video);
-            searchVideosList.add(video);
+            n_searchVideosList.add(video);
         }
     }
 

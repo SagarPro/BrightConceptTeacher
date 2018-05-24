@@ -17,17 +17,18 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.util.Log;
 import android.widget.Toast;
-import static sagu.supro.BCT.leanback_lib.VideoList.offlineVideos;
+import static sagu.supro.BCT.levels.lkg.LkgVideoList.l_searchVideosList;
+import static sagu.supro.BCT.levels.nursery.NurseryVideoList.n_searchVideosList;
+import static sagu.supro.BCT.levels.playgroup.PlaygroupVideoList.p_searchVideosList;
+import static sagu.supro.BCT.levels.ukg.UkgVideoList.u_searchVideosList;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import sagu.supro.BCT.R;
-import sagu.supro.BCT.leanback_lib.BrowseErrorActivity;
 import sagu.supro.BCT.leanback_lib.CardPresenter;
 import sagu.supro.BCT.leanback_lib.DetailsActivity;
 import sagu.supro.BCT.leanback_lib.Video;
-
-import static sagu.supro.BCT.leanback_lib.VideoList.searchVideosList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,6 +39,8 @@ public class SearchFrag extends SearchFragment implements android.support.v17.le
 
     private ArrayObjectAdapter mRowsAdapter;
     private ArrayList<Video> mItems;
+
+    private List<String> offlineVideos = new ArrayList<>();
 
 
     public SearchFrag() {
@@ -51,6 +54,8 @@ public class SearchFrag extends SearchFragment implements android.support.v17.le
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         setSearchResultProvider(this);
         setOnItemViewClickedListener(new ItemViewClickedListener());
+
+        offlineVideos = getActivity().getIntent().getStringArrayListExtra("OfflineVideos");
     }
 
     @Override
@@ -58,7 +63,21 @@ public class SearchFrag extends SearchFragment implements android.support.v17.le
         Log.d(TAG, "getResultsAdapter");
         Log.d(TAG, mRowsAdapter.toString());
 
-        mItems = (ArrayList<Video>) searchVideosList;
+        switch (getActivity().getIntent().getStringExtra("level")){
+            case "Playgroup":
+                mItems = (ArrayList<Video>) p_searchVideosList;
+                break;
+            case "Nursery":
+                mItems = (ArrayList<Video>) n_searchVideosList;
+                break;
+            case "LKG":
+                mItems = (ArrayList<Video>) l_searchVideosList;
+                break;
+            case "UKG":
+                mItems = (ArrayList<Video>) u_searchVideosList;
+                break;
+        }
+
         ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
         listRowAdapter.addAll(0, mItems);
         HeaderItem header = new HeaderItem("Search results");
@@ -111,8 +130,9 @@ public class SearchFrag extends SearchFragment implements android.support.v17.le
                 getActivity().startActivity(intent, bundle);
             } else if (item instanceof String) {
                 if (((String) item).contains(getString(R.string.error_fragment))) {
-                    Intent intent = new Intent(getActivity(), BrowseErrorActivity.class);
-                    startActivity(intent);
+                    /*Intent intent = new Intent(getActivity(), BrowseErrorActivity.class);
+                    startActivity(intent);*/
+                    Toast.makeText(getContext(), "Error Occured", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity(), ((String) item), Toast.LENGTH_SHORT).show();
                 }

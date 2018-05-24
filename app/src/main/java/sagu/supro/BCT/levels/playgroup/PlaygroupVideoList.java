@@ -42,7 +42,7 @@ import sagu.supro.BCT.utils.Config;
 public class PlaygroupVideoList {
     private List<String> VIDEO_CATEGORY = new ArrayList<>();
     private List<Video> actualVideoList = new ArrayList<>();
-    public static List<Video> searchVideosList = new ArrayList<>();
+    public static List<Video> p_searchVideosList = new ArrayList<>();
 
     private AmazonDynamoDBClient dynamoDBClient;
     private DynamoDBMapper dynamoDBMapper;
@@ -70,6 +70,7 @@ public class PlaygroupVideoList {
     private List<String> downloadedVideoDesc = new ArrayList<>();
 
     public static List<String> offlineVideos = new ArrayList<>();
+    //public static List<String> searchVideos = new ArrayList<>();
 
     private ArrayObjectAdapter rowsAdapter;
 
@@ -269,7 +270,7 @@ public class PlaygroupVideoList {
                 listRowAdapter.add(actualVideoList.get(i));
                 i++;
             }
-            searchVideosList.addAll(actualVideoList);
+            p_searchVideosList.addAll(actualVideoList);
 
             HeaderItem header = new HeaderItem(0, VIDEO_CATEGORY.get(0));
             rowsAdapter.add(new ListRow(header, listRowAdapter));
@@ -301,7 +302,7 @@ public class PlaygroupVideoList {
             video.setVideoUrl(topic.get(i).getVideoUrl());
             video.setVideoTopic(topic.get(i).getVideoTopic());
             actualVideoList.add(video);
-            searchVideosList.add(video);
+            p_searchVideosList.add(video);
         }
     }
 
@@ -345,6 +346,7 @@ public class PlaygroupVideoList {
         downloadedCardImage.clear();
         downloadedVideoName.clear();
         offlineVideos.clear();
+        //searchVideos.clear();
     }
 
     @SuppressLint("StaticFieldLeak")

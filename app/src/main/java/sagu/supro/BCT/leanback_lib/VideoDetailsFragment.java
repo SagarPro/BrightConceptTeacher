@@ -73,7 +73,6 @@ import static sagu.supro.BCT.levels.lkg.LkgFrag.lkgFrag;
 import static sagu.supro.BCT.levels.nursery.NurseryFrag.nurseryFrag;
 import static sagu.supro.BCT.levels.playgroup.PlaygroupFrag.playgroupFrag;
 import static sagu.supro.BCT.levels.ukg.UkgFrag.ukgFrag;
-import static sagu.supro.BCT.tv.MainFrag.mainFrag;
 
 /*
  * LeanbackDetailsFragment extends DetailsFragment, a Wrapper fragment for leanback details screens.
@@ -159,7 +158,7 @@ public class VideoDetailsFragment extends DetailsFragment {
         Glide.with(getActivity())
                 .load(mSelectedVideo.getCardImageUrl())
                 .centerCrop()
-                .error(R.drawable.default_background)
+                //.error(R.drawable.default_background)
                 .into(new SimpleTarget<GlideDrawable>(width, height) {
                     @Override
                     public void onResourceReady(GlideDrawable resource,
