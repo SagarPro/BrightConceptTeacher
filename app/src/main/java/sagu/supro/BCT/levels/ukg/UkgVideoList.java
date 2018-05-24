@@ -1,4 +1,4 @@
-package sagu.supro.BCT.levels.nursery;
+package sagu.supro.BCT.levels.ukg;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -34,12 +34,14 @@ import java.util.List;
 import java.util.Map;
 
 import sagu.supro.BCT.dynamo.NurseryVideosDO;
+import sagu.supro.BCT.dynamo.UKGVideosDO;
 import sagu.supro.BCT.leanback_lib.CardPresenter;
 import sagu.supro.BCT.leanback_lib.Video;
+import sagu.supro.BCT.levels.nursery.NurseryVideoList;
 import sagu.supro.BCT.utils.AWSProvider;
 import sagu.supro.BCT.utils.Config;
 
-public class NurseryVideoList {
+public class UkgVideoList {
 
     private List<String> VIDEO_CATEGORY = new ArrayList<>();
     private List<Video> actualVideoList = new ArrayList<>();
@@ -49,20 +51,10 @@ public class NurseryVideoList {
     private DynamoDBMapper dynamoDBMapper;
     private Context context;
 
-    private List<NurseryVideosDO> phonics = new ArrayList<>();
-    private List<NurseryVideosDO> numbersCounting = new ArrayList<>();
-    private List<NurseryVideosDO> rhymes = new ArrayList<>();
-    private List<NurseryVideosDO> stories = new ArrayList<>();
-    private List<NurseryVideosDO> generalKnowledge = new ArrayList<>();
-    private List<NurseryVideosDO> airTransportation = new ArrayList<>();
-    private List<NurseryVideosDO> surfaceTransportation = new ArrayList<>();
-    private List<NurseryVideosDO> goodHabits = new ArrayList<>();
-    private List<NurseryVideosDO> fruits = new ArrayList<>();
-    private List<NurseryVideosDO> vegetables = new ArrayList<>();
-    private List<NurseryVideosDO> healthyFoods = new ArrayList<>();
-    private List<NurseryVideosDO> farmAnimals = new ArrayList<>();
-    private List<NurseryVideosDO> jungleAnimals = new ArrayList<>();
-    private List<NurseryVideosDO> alphabetNumberWriting = new ArrayList<>();
+    private List<UKGVideosDO> generalKnowledge = new ArrayList<>();
+    private List<UKGVideosDO> rhymes = new ArrayList<>();
+    private List<UKGVideosDO> phonics = new ArrayList<>();
+    private List<UKGVideosDO> alphabetNumberWriting = new ArrayList<>();
 
     private List<String> downloadedVideoName = new ArrayList<>();
     private List<String> downloadedVideoId = new ArrayList<>();
@@ -75,7 +67,7 @@ public class NurseryVideoList {
 
     int downloadVideos = 0;
 
-    public NurseryVideoList(Context context){
+    public UkgVideoList(Context context){
         this.context=context;
         AWSProvider awsProvider = new AWSProvider();
         dynamoDBClient = new AmazonDynamoDBClient(awsProvider.getCredentialsProvider(context));
@@ -86,23 +78,13 @@ public class NurseryVideoList {
                 .build();
     }
 
-    public ArrayObjectAdapter setupNurseryVideos() {
+    public ArrayObjectAdapter setupUkgVideos() {
 
         clearAllLists();
 
-        VIDEO_CATEGORY.add("PHONICS");
-        VIDEO_CATEGORY.add("NUMBERS & COUNTING");
-        VIDEO_CATEGORY.add("RHYMES");
-        VIDEO_CATEGORY.add("STORIES");
         VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
-        VIDEO_CATEGORY.add("AIR TRANSPORTATION");
-        VIDEO_CATEGORY.add("SURFACE TRANSPORTATION");
-        VIDEO_CATEGORY.add("GOOD HABITS");
-        VIDEO_CATEGORY.add("FRUITS");
-        VIDEO_CATEGORY.add("VEGETABLES");
-        VIDEO_CATEGORY.add("HEALTHY FOODS");
-        VIDEO_CATEGORY.add("FARM ANIMALS");
-        VIDEO_CATEGORY.add("JUNGLE ANIMALS");
+        VIDEO_CATEGORY.add("RHYMES");
+        VIDEO_CATEGORY.add("PHONICS");
         VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
 
         try {
@@ -131,62 +113,22 @@ public class NurseryVideoList {
                     int NUM_COLS = i;
                     switch (i) {
                         case 0:
-                            NUM_COLS = phonics.size();
-                            updateActualList(phonics);
-                            break;
-                        case 1:
-                            NUM_COLS = numbersCounting.size();
-                            updateActualList(numbersCounting);
-                            break;
-                        case 2:
-                            NUM_COLS = rhymes.size();
-                            updateActualList(rhymes);
-                            break;
-                        case 3:
-                            NUM_COLS = stories.size();
-                            updateActualList(stories);
-                            break;
-                        case 4:
                             NUM_COLS = generalKnowledge.size();
                             updateActualList(generalKnowledge);
                             break;
-                        case 5:
-                            NUM_COLS = airTransportation.size();
-                            updateActualList(airTransportation);
+                        case 1:
+                            NUM_COLS = rhymes.size();
+                            updateActualList(rhymes);
                             break;
-                        case 6:
-                            NUM_COLS = surfaceTransportation.size();
-                            updateActualList(surfaceTransportation);
+                        case 2:
+                            NUM_COLS = phonics.size();
+                            updateActualList(phonics);
                             break;
-                        case 7:
-                            NUM_COLS = goodHabits.size();
-                            updateActualList(goodHabits);
-                            break;
-                        case 8:
-                            NUM_COLS = fruits.size();
-                            updateActualList(fruits);
-                            break;
-                        case 9:
-                            NUM_COLS = vegetables.size();
-                            updateActualList(vegetables);
-                            break;
-                        case 10:
-                            NUM_COLS = healthyFoods.size();
-                            updateActualList(healthyFoods);
-                            break;
-                        case 11:
-                            NUM_COLS = farmAnimals.size();
-                            updateActualList(farmAnimals);
-                            break;
-                        case 12:
-                            NUM_COLS = jungleAnimals.size();
-                            updateActualList(jungleAnimals);
-                            break;
-                        case 13:
+                        case 3:
                             NUM_COLS = alphabetNumberWriting.size();
                             updateActualList(alphabetNumberWriting);
                             break;
-                        case 14:
+                        case 5:
                             NUM_COLS = downloadVideos;
                             addAllDownloadedVideosToRow(downloadVideos);
                             break;
@@ -217,20 +159,10 @@ public class NurseryVideoList {
     }
 
     private void sortVideos(){
-        Collections.sort(phonics, new NurseryVideoIdComparator());
-        Collections.sort(numbersCounting, new NurseryVideoIdComparator());
-        Collections.sort(rhymes, new NurseryVideoIdComparator());
-        Collections.sort(stories, new NurseryVideoIdComparator());
-        Collections.sort(generalKnowledge, new NurseryVideoIdComparator());
-        Collections.sort(airTransportation, new NurseryVideoIdComparator());
-        Collections.sort(surfaceTransportation, new NurseryVideoIdComparator());
-        Collections.sort(goodHabits, new NurseryVideoIdComparator());
-        Collections.sort(fruits, new NurseryVideoIdComparator());
-        Collections.sort(vegetables, new NurseryVideoIdComparator());
-        Collections.sort(healthyFoods, new NurseryVideoIdComparator());
-        Collections.sort(farmAnimals, new NurseryVideoIdComparator());
-        Collections.sort(jungleAnimals, new NurseryVideoIdComparator());
-        Collections.sort(alphabetNumberWriting, new NurseryVideoIdComparator());
+        Collections.sort(generalKnowledge, new UkgVideoIdComparator());
+        Collections.sort(rhymes, new UkgVideoIdComparator());
+        Collections.sort(phonics, new UkgVideoIdComparator());
+        Collections.sort(alphabetNumberWriting, new UkgVideoIdComparator());
     }
 
     private void setDownloadedVideos(){
@@ -281,7 +213,7 @@ public class NurseryVideoList {
     }
 
     private int getTotalDownloadedProjects() {
-        File directory=new File(Environment.getExternalStorageDirectory()+"/BCT/Nursery");
+        File directory=new File(Environment.getExternalStorageDirectory()+"/BCT/UKG");
         getDownloadedVideoNames(directory);
         return directory.list().length;
     }
@@ -310,7 +242,7 @@ public class NurseryVideoList {
         return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
     }
 
-    private void updateActualList(List<NurseryVideosDO> topic) {
+    private void updateActualList(List<UKGVideosDO> topic) {
         for (int i=0; i<topic.size(); i++) {
             Video video = new Video();
             video.setId(topic.get(i).getVideoId());
@@ -346,7 +278,7 @@ public class NurseryVideoList {
             video.setDescription(title_desc[1]);
             video.setCardImageUrl(downloadedCardImage.get(i));
             video.setVideoUrl(downloadedVideoName.get(i));
-            if (title_desc[2].equals("Nursery")) {
+            if (title_desc[2].equals("UKG")) {
                 actualVideoList.add(video);
                 offlineVideos.add(video.getId());
             }
@@ -364,60 +296,28 @@ public class NurseryVideoList {
         protected Boolean doInBackground(String... strings) {
 
             try {
-                ScanRequest request = new ScanRequest().withTableName(Config.NURSERYTABLENAME);
+                ScanRequest request = new ScanRequest().withTableName(Config.UKGTABLENAME);
                 ScanResult response = dynamoDBClient.scan(request);
                 List<Map<String, AttributeValue>> userRows = response.getItems();
                 for (Map<String, AttributeValue> map : userRows) {
-                    NurseryVideosDO nurseryVideosDO = dynamoDBMapper.load(NurseryVideosDO.class, map.get("video_id").getS(),
+                    UKGVideosDO ukgVideosDO = dynamoDBMapper.load(UKGVideosDO.class, map.get("video_id").getS(),
                             map.get("video_title").getS());
 
                     switch (map.get("video_topic").getS()){
-                        case "PHONICS" :
-                            phonics.add(nurseryVideosDO);
-                            break;
-                        case "NUMBERS & COUNTING":
-                            numbersCounting.add(nurseryVideosDO);
+                        case "GENERAL KNOWLEDGE":
+                            generalKnowledge.add(ukgVideosDO);
                             break;
                         case "RHYMES":
-                            rhymes.add(nurseryVideosDO);
+                            rhymes.add(ukgVideosDO);
                             break;
-                        case "STORIES":
-                            stories.add(nurseryVideosDO);
-                            break;
-                        case "GENERAL KNOWLEDGE":
-                            generalKnowledge.add(nurseryVideosDO);
-                            break;
-                        case "AIR TRANSPORTATION" :
-                            airTransportation.add(nurseryVideosDO);
-                            break;
-                        case "SURFACE TRANSPORTATION":
-                            surfaceTransportation.add(nurseryVideosDO);
-                            break;
-                        case "GOOD HABITS":
-                            goodHabits.add(nurseryVideosDO);
-                            break;
-                        case "FRUITS":
-                            fruits.add(nurseryVideosDO);
-                            break;
-                        case "VEGETABLES":
-                            vegetables.add(nurseryVideosDO);
-                            break;
-                        case "HEALTHY FOODS" :
-                            healthyFoods.add(nurseryVideosDO);
-                            break;
-                        case "FARM ANIMALS":
-                            farmAnimals.add(nurseryVideosDO);
-                            break;
-                        case "JUNGLE ANIMALS":
-                            jungleAnimals.add(nurseryVideosDO);
+                        case "PHONICS" :
+                            phonics.add(ukgVideosDO);
                             break;
                         case "ALPHABET & NUMBER WRITING":
-                            alphabetNumberWriting.add(nurseryVideosDO);
+                            alphabetNumberWriting.add(ukgVideosDO);
                             break;
                     }
                 }
-
-
 
                 return true;
             } catch (AmazonClientException e){
@@ -444,9 +344,9 @@ public class NurseryVideoList {
         }
     }
 
-    private class NurseryVideoIdComparator implements Comparator<NurseryVideosDO> {
+    private class UkgVideoIdComparator implements Comparator<UKGVideosDO> {
         @Override
-        public int compare(NurseryVideosDO v1, NurseryVideosDO v2) {
+        public int compare(UKGVideosDO v1, UKGVideosDO v2) {
             return v1.getVideoId().compareTo(v2.getVideoId());
         }
     }

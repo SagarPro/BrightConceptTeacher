@@ -91,8 +91,8 @@ public class UkgFrag extends BrowseFragment {
     public void loadRows() {
 
         offlineVideos.clear();
-        VideoList videoList = new VideoList(getContext());
-        ArrayObjectAdapter rowsAdapter =  videoList.setupMovies();
+        UkgVideoList videoList = new UkgVideoList(getContext());
+        ArrayObjectAdapter rowsAdapter =  videoList.setupUkgVideos();
         setAdapter(rowsAdapter);
         offlineVideos.addAll(videoList.getOfflineVideos());
 
@@ -109,7 +109,7 @@ public class UkgFrag extends BrowseFragment {
     }
 
     private void setupUIElements() {
-        setTitle("Playgroup");
+        setTitle("UKG");
         setHeadersState(HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
         setBrandColor(ContextCompat.getColor(getContext(), R.color.dark_blue));
@@ -166,6 +166,7 @@ public class UkgFrag extends BrowseFragment {
                 Log.d(TAG, "Item: " + item.toString());
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
                 intent.putExtra(DetailsActivity.VIDEO, mvideoDO);
+                intent.putExtra("LEVEL", "UKG");
                 intent.putStringArrayListExtra("OfflineVideos", (ArrayList<String>) offlineVideos);
 
                 Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(

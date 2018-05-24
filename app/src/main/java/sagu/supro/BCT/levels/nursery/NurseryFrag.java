@@ -115,7 +115,7 @@ public class NurseryFrag extends BrowseFragment {
     }
 
     private void setupUIElements() {
-        setTitle("Playgroup");
+        setTitle("Nursery");
         setHeadersState(HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
         setBrandColor(ContextCompat.getColor(getContext(), R.color.dark_blue));
