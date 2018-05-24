@@ -23,7 +23,6 @@
         android:theme="@style/AppTheme">
         <activity android:name=".leanback_lib.DetailsActivity" />
         <activity android:name=".leanback_lib.PlaybackActivity" />
-        <activity android:name=".leanback_lib.BrowseErrorActivity" />
         <activity
             android:name=".tv.Start"
             android:icon="@drawable/app_icon_your_company"
@@ -38,9 +37,8 @@
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true" />
 
-        <activity android:name=".tv.MainScreen" />
         <activity android:name=".tv.SearchActivity" />
-        <activity android:name=".tv.MainScreen2">
+        <activity android:name=".tv.MainScreen">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

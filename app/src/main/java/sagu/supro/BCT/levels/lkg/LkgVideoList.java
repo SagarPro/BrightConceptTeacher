@@ -43,7 +43,7 @@ import sagu.supro.BCT.utils.Config;
 public class LkgVideoList {
     private List<String> VIDEO_CATEGORY = new ArrayList<>();
     private List<Video> actualVideoList = new ArrayList<>();
-    public static List<Video> searchVideosList = new ArrayList<>();
+    public static List<Video> l_searchVideosList = new ArrayList<>();
 
     private AmazonDynamoDBClient dynamoDBClient;
     private DynamoDBMapper dynamoDBMapper;
@@ -89,7 +89,7 @@ public class LkgVideoList {
             Boolean bgStatus = new FetchVideoDetails().execute().get();
             if (bgStatus) {
 
-                VIDEO_CATEGORY.add("GOOD HABITS & SAFTEY");
+                VIDEO_CATEGORY.add("GOOD HABITS & SAFETY");
                 VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
                 VIDEO_CATEGORY.add("PHONICS");
                 VIDEO_CATEGORY.add("RHYMES");
@@ -207,7 +207,7 @@ public class LkgVideoList {
                 listRowAdapter.add(actualVideoList.get(i));
                 i++;
             }
-            searchVideosList.addAll(actualVideoList);
+            l_searchVideosList.addAll(actualVideoList);
 
             HeaderItem header = new HeaderItem(0, VIDEO_CATEGORY.get(0));
             rowsAdapter.add(new ListRow(header, listRowAdapter));
@@ -239,7 +239,7 @@ public class LkgVideoList {
             video.setVideoUrl(topic.get(i).getVideoUrl());
             video.setVideoTopic(topic.get(i).getVideoTopic());
             actualVideoList.add(video);
-            searchVideosList.add(video);
+            l_searchVideosList.add(video);
         }
     }
 
