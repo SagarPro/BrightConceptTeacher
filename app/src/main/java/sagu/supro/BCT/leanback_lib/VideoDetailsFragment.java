@@ -227,9 +227,9 @@ public class VideoDetailsFragment extends DetailsFragment {
 
                         String videoName = mSelectedVideo.getId()+".mp4";
                         final File path = Environment.getExternalStorageDirectory();
-                        File file = new File(path+"/BCT/"+mSelectedVideo.getId()+"/");
+                        File file = new File(path+"/BCT/"+level+"/"+mSelectedVideo.getId()+"/");
                         file.mkdirs();
-                        final String filePath = path+"/BCT/"+mSelectedVideo.getId()+"/"+videoName;
+                        final String filePath = path+"/BCT/"+level+"/"+mSelectedVideo.getId()+"/"+videoName;
 
                         AWSCredentials awsCredentials = new BasicAWSCredentials(Config.ACCESSKEY, Config.SECRETKEY);
                         AmazonS3Client s3 = new AmazonS3Client(awsCredentials);
@@ -263,7 +263,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                                     Log.d("Video", "Success");
 
                                     String imageName = mSelectedVideo.getId() + ".jpg";
-                                    String imagePath = path + "/BCT/" + mSelectedVideo.getId() + "/"+imageName;
+                                    String imagePath = path + "/BCT/" +level+"/" + mSelectedVideo.getId() + "/"+imageName;
 
                                     TransferObserver downloadImageObserver = transferUtility.download(
                                             "bkmhbct", imageName,
@@ -337,7 +337,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                         playIntent.putExtra(DetailsActivity.VIDEO, mSelectedVideo);
                         playIntent.putExtra("Type","Downloaded");
                         playIntent.putExtra("VideoName",mSelectedVideo.getTitle());
-                        String videoPath = Environment.getExternalStorageDirectory()+"/BCT/"+mSelectedVideo.getId()+"/"+mSelectedVideo.getId()+".mp4";
+                        String videoPath = Environment.getExternalStorageDirectory()+"/BCT/"+level+"/"+mSelectedVideo.getId()+"/"+mSelectedVideo.getId()+".mp4";
                         playIntent.putExtra("VideoPath",videoPath);
                         startActivity(playIntent);
                         break;
@@ -348,7 +348,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                         AlertDialog progressDialog = new SpotsDialog(getActivity());
                         progressDialog.show();
 
-                        File dir = new File(Environment.getExternalStorageDirectory()+"/BCT/"+mSelectedVideo.getId());
+                        File dir = new File(Environment.getExternalStorageDirectory()+"/BCT/"+level+"/"+mSelectedVideo.getId());
                         deleteRecursive(dir);
 
                         refreshAdapter();
@@ -387,7 +387,7 @@ public class VideoDetailsFragment extends DetailsFragment {
     private void generateNoteOnSD(String sFileName, String sBody) {
         try {
             File path = Environment.getExternalStorageDirectory();
-            File file = new File(path+"/BCT/"+mSelectedVideo.getId()+"/");
+            File file = new File(path+"/BCT/"+level+"/"+mSelectedVideo.getId()+"/");
             if (!file.exists()) {
                 file.mkdirs();
             }
