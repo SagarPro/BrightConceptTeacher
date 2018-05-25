@@ -310,7 +310,7 @@ public class LkgVideoList {
                         case "GENERAL KNOWLEDGE":
                             generalKnowledge.add(nurseryVideosDO);
                             break;
-                        case "GOOD HABITS & SAFTEY" :
+                        case "GOOD HABITS & SAFETY" :
                             goodHabitsAndSafety.add(nurseryVideosDO);
                             break;
                         case "ALPHABET & NUMBER WRITING":
