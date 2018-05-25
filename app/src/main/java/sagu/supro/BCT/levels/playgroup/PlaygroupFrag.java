@@ -27,6 +27,8 @@ import sagu.supro.BCT.leanback_lib.DetailsActivity;
 import sagu.supro.BCT.leanback_lib.Video;
 import sagu.supro.BCT.tv.SearchActivity;
 
+import static sagu.supro.BCT.tv.MainScreen.progressDialog;
+
 public class PlaygroupFrag extends BrowseFragment {
     private static final String TAG = "PlaygroupFrag";
 
@@ -34,7 +36,6 @@ public class PlaygroupFrag extends BrowseFragment {
 
     public static PlaygroupFrag playgroupFrag;
 
-    AlertDialog progressDialog;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -42,13 +43,15 @@ public class PlaygroupFrag extends BrowseFragment {
 
         playgroupFrag = this;
 
-        setupUIElements();
-        new LoadVideos().execute();
+        prepareUI();
     }
 
     private void prepareUI(){
+        setupUIElements();
         loadRows();
         setupEventListeners();
+        if (progressDialog.isShowing())
+            progressDialog.dismiss();
     }
 
     public void loadRows() {
@@ -114,27 +117,4 @@ public class PlaygroupFrag extends BrowseFragment {
             }
         }
     }
-
-    @SuppressLint("StaticFieldLeak")
-    private class LoadVideos extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            progressDialog = new SpotsDialog(getActivity(), "This may take a while...");
-            progressDialog.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            prepareUI();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            if (progressDialog.isShowing())
-                progressDialog.dismiss();
-        }
-    }
-
 }

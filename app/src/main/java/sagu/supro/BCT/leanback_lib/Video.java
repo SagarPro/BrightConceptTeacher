@@ -6,7 +6,6 @@ public class Video implements Serializable{
     private String id;
     private String title;
     private String description;
-    //private String bgImageUrl;
     private String cardImageUrl;
     private String videoUrl;
     private String videoTopic;
@@ -37,14 +36,6 @@ public class Video implements Serializable{
         this.description = description;
     }
 
-    /*public String getBgImageUrl() {
-        return bgImageUrl;
-    }
-
-    public void setBgImageUrl(String bgImageUrl) {
-        this.bgImageUrl = bgImageUrl;
-    }*/
-
     public String getCardImageUrl() {
         return cardImageUrl;
     }
@@ -73,7 +64,6 @@ public class Video implements Serializable{
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", videoUrl='" + videoUrl + '\'' +
-                /*", backgroundImageUrl='" + bgImageUrl + '\'' +*/
                 ", cardImageUrl='" + cardImageUrl + '\'' +
                 '}';
     }

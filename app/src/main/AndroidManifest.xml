@@ -16,8 +16,8 @@
 
     <application
         android:allowBackup="true"
-        android:banner="@drawable/app_icon_your_company"
-        android:icon="@mipmap/ic_launcher"
+        android:banner="@drawable/tv_banner"
+        android:icon="@mipmap/app_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -25,10 +25,14 @@
         <activity android:name=".leanback_lib.PlaybackActivity" />
         <activity
             android:name=".tv.Start"
-            android:icon="@drawable/app_icon_your_company"
+            android:icon="@mipmap/app_icon"
             android:label="@string/app_name"
-            android:logo="@drawable/app_icon_your_company" >
-
+            android:logo="@drawable/tv_banner" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".mobile.Register" />
         <activity android:name=".mobile.Admin" />
@@ -38,16 +42,7 @@
             android:enabled="true" />
 
         <activity android:name=".tv.SearchActivity" />
-        <activity android:name=".tv.MainScreen">
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-            </intent-filter>
-
-        </activity>
+        <activity android:name=".tv.MainScreen"/>
         <activity android:name=".levels.playgroup.PlaygroupActivity" />
         <activity android:name=".levels.nursery.NurseryActivity" />
         <activity android:name=".levels.lkg.LkgActivity" />

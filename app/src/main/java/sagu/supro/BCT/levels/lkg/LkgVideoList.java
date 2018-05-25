@@ -34,6 +34,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import dmax.dialog.SpotsDialog;
 import sagu.supro.BCT.dynamo.LKGVideosDO;
 import sagu.supro.BCT.leanback_lib.CardPresenter;
 import sagu.supro.BCT.leanback_lib.Video;
@@ -248,7 +249,7 @@ public class LkgVideoList {
     }
 
     private int getTotalDownloadedProjects() {
-        File directory=new File(Environment.getExternalStorageDirectory()+"/BCT/LKG");
+        File directory=new File(Environment.getExternalStorageDirectory()+"/.BCT/LKG");
         getDownloadedVideoNames(directory);
         return directory.list().length;
     }
@@ -287,7 +288,6 @@ public class LkgVideoList {
 
     @SuppressLint("StaticFieldLeak")
     class FetchVideoDetails extends AsyncTask<String, Void, Boolean> {
-
         @Override
         protected Boolean doInBackground(String... strings) {
 
@@ -310,7 +310,7 @@ public class LkgVideoList {
                         case "GENERAL KNOWLEDGE":
                             generalKnowledge.add(nurseryVideosDO);
                             break;
-                        case "GOOD HABITS & SAFTEY" :
+                        case "GOOD HABITS & SAFETY" :
                             goodHabitsAndSafety.add(nurseryVideosDO);
                             break;
                         case "ALPHABET & NUMBER WRITING":

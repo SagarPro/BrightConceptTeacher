@@ -59,6 +59,7 @@ public class Admin extends Activity {
 
     SearchView searchView;
     ImageView registerUser;
+    MACAdapter macAdapter;
 
 
     @Override
@@ -197,8 +198,6 @@ public class Admin extends Activity {
                     }
                 });
 
-                final MACAdapter macAdapter = new MACAdapter(macList, Admin.this);
-
                 tvMACAddress.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -208,6 +207,14 @@ public class Admin extends Activity {
 
                         ListView lvMAC = innerDialog.findViewById(R.id.lvMAC);
                         Button cancel = innerDialog.findViewById(R.id.cancel);
+
+                        if(btnCEdit.getVisibility()==View.VISIBLE){
+                            macAdapter = new MACAdapter(false,macList,Admin.this);
+                        }
+                        else {
+                            macAdapter = new MACAdapter(true,macList,Admin.this);
+                        }
+
 
                         lvMAC.setAdapter(macAdapter);
 

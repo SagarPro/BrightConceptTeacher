@@ -274,7 +274,7 @@ public class NurseryVideoList {
     }
 
     private int getTotalDownloadedProjects() {
-        File directory=new File(Environment.getExternalStorageDirectory()+"/BCT/Nursery");
+        File directory=new File(Environment.getExternalStorageDirectory()+"/.BCT/Nursery");
         getDownloadedVideoNames(directory);
         return directory.list().length;
     }

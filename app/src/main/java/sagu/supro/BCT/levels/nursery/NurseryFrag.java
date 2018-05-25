@@ -29,6 +29,8 @@ import sagu.supro.BCT.leanback_lib.DetailsActivity;
 import sagu.supro.BCT.leanback_lib.Video;
 import sagu.supro.BCT.tv.SearchActivity;
 
+import static sagu.supro.BCT.tv.MainScreen.progressDialog;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -39,21 +41,21 @@ public class NurseryFrag extends BrowseFragment {
 
     public static NurseryFrag nurseryFrag;
 
-    AlertDialog progressDialog;
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         nurseryFrag = this;
 
-        setupUIElements();
-        new LoadVideos().execute();
+        prepareUI();
     }
 
     private void prepareUI(){
+        setupUIElements();
         loadRows();
         setupEventListeners();
+        if (progressDialog.isShowing())
+            progressDialog.dismiss();
     }
 
 
@@ -120,27 +122,4 @@ public class NurseryFrag extends BrowseFragment {
             }
         }
     }
-
-    @SuppressLint("StaticFieldLeak")
-    private class LoadVideos extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            progressDialog = new SpotsDialog(getActivity(), "This may take a while...");
-            progressDialog.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            prepareUI();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            if (progressDialog.isShowing())
-                progressDialog.dismiss();
-        }
-    }
-
 }
