@@ -206,7 +206,7 @@ public class UkgVideoList {
     }
 
     private int getTotalDownloadedProjects() {
-        File directory=new File(Environment.getExternalStorageDirectory()+"/BCT/UKG");
+        File directory=new File(Environment.getExternalStorageDirectory()+"/.BCT/UKG");
         getDownloadedVideoNames(directory);
         return directory.list().length;
     }

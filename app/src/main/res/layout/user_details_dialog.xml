@@ -265,7 +265,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="cancel"
+        android:text="Cancel"
         android:textAllCaps="false"
         android:textColor="@color/dark_blue"
         android:layout_below="@id/rlDetails"
@@ -275,7 +275,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="edit"
+        android:text="Edit"
         android:textAllCaps="false"
         android:textColor="@color/dark_blue"
         android:layout_below="@id/rlDetails"
@@ -286,7 +286,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="save"
+        android:text="Save"
         android:textAllCaps="false"
         android:textColor="@color/dark_blue"
         android:layout_below="@id/rlDetails"

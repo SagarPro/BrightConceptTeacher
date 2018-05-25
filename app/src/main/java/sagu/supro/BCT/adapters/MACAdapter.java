@@ -17,8 +17,10 @@ public class MACAdapter extends BaseAdapter {
 
     private List<String> macList;
     private Context context;
+    private Boolean mode;
 
-    public MACAdapter(List<String> macList, Context context){
+    public MACAdapter(Boolean mode,List<String> macList, Context context){
+        this.mode=mode;
         this.macList = macList;
         this.context = context;
     }
@@ -45,6 +47,10 @@ public class MACAdapter extends BaseAdapter {
         convertView = layoutInflater.inflate(R.layout.mac_row,null);
         final TextView tvMAC = convertView.findViewById(R.id.tvMAC);
         ImageView ivClear = convertView.findViewById(R.id.ivClear);
+
+        if(!mode){
+            ivClear.setVisibility(View.GONE);
+        }
 
         tvMAC.setText(position+1+".  "+macList.get(position));
         ivClear.setOnClickListener(new View.OnClickListener() {

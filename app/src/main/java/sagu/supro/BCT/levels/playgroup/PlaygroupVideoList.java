@@ -311,7 +311,7 @@ public class PlaygroupVideoList {
     }
 
     private int getTotalDownloadedProjects() {
-        File directory=new File(Environment.getExternalStorageDirectory()+"/BCT/Playgroup");
+        File directory=new File(Environment.getExternalStorageDirectory()+"/.BCT/Playgroup");
         getDownloadedVideoNames(directory);
         return directory.list().length;
     }
