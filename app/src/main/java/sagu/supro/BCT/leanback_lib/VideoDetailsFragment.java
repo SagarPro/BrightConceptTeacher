@@ -238,7 +238,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                                 .build();
 
                         final TransferObserver downloadVideoObserver = transferUtility.download(
-                                "bkmhbct", videoName,
+                                "bkmhbct/"+level, videoName,
                                 new File(filePath));
 
                         builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
@@ -264,7 +264,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                                     String imagePath = path + "/.BCT/" +level+"/" + mSelectedVideo.getId() + "/"+imageName;
 
                                     TransferObserver downloadImageObserver = transferUtility.download(
-                                            "bkmhbct", imageName,
+                                            "bkmhbct/"+level, imageName,
                                             new File(imagePath));
 
                                     downloadImageObserver.setTransferListener(new TransferListener() {
