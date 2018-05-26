@@ -1,5 +1,6 @@
 package sagu.supro.BCT.levels.lkg;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
@@ -18,12 +19,13 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import dmax.dialog.SpotsDialog;
 import sagu.supro.BCT.R;
 import sagu.supro.BCT.leanback_lib.DetailsActivity;
 import sagu.supro.BCT.leanback_lib.Video;
 import sagu.supro.BCT.tv.SearchActivity;
 
-import static sagu.supro.BCT.tv.MainScreen.progressDialog;
+import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 public class LkgFrag extends BrowseFragment {
     private static final String TAG = "LkgFrag";
@@ -46,17 +48,34 @@ public class LkgFrag extends BrowseFragment {
         setupUIElements();
         loadRows();
         setupEventListeners();
-        if (progressDialog.isShowing())
-            progressDialog.dismiss();
     }
 
     public void loadRows() {
 
         offlineVideos.clear();
-        LkgVideoList videoList = new LkgVideoList(getContext());
-        ArrayObjectAdapter rowsAdapter =  videoList.setupLkgVideos();
-        setAdapter(rowsAdapter);
-        offlineVideos.addAll(videoList.getOfflineVideos());
+
+        final AlertDialog progressDialog = new SpotsDialog(getContext(), "This may take a while...");
+        progressDialog.show();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LkgVideoList videoList = new LkgVideoList(getContext());
+                final ArrayObjectAdapter rowsAdapter =  videoList.setupLkgVideos();
+                offlineVideos.addAll(videoList.getOfflineVideos());
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setAdapter(rowsAdapter);
+                        if (progressDialog.isShowing())
+                            progressDialog.dismiss();
+                    }
+                });
+
+            }
+        }).start();
+
     }
 
     private void setupUIElements() {

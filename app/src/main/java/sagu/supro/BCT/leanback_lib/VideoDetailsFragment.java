@@ -42,7 +42,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -212,7 +211,12 @@ public class VideoDetailsFragment extends DetailsFragment {
                         break;
                     case ACTION_DOWNLOAD:
 
-                        if (offlineVideos.size() < 10) {
+                        int totalOfflineVideos = getTotalDownloadedProjects(new File(Environment.getExternalStorageDirectory()+"/.BCT/Nursery"))
+                                + getTotalDownloadedProjects(new File(Environment.getExternalStorageDirectory()+"/.BCT/LKG"))
+                                + getTotalDownloadedProjects(new File(Environment.getExternalStorageDirectory()+"/.BCT/UKG"))
+                                + getTotalDownloadedProjects(new File(Environment.getExternalStorageDirectory()+"/.BCT/Playgroup"));
+
+                        if (totalOfflineVideos < 10) {
 
                         final AlertDialog alertDialog;
                         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -244,9 +248,11 @@ public class VideoDetailsFragment extends DetailsFragment {
                         builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                File dir = new File(Environment.getExternalStorageDirectory()+"/.BCT/"+level+"/"+mSelectedVideo.getId());
+                                //File halfDownloadedFile = new File(downloadVideoObserver.getAbsoluteFilePath());
+                                deleteRecursive(dir);
+                                refreshAdapter();
                                 dialog.dismiss();
-                                File halfDownloadedFile = new File(downloadVideoObserver.getAbsoluteFilePath());
-                                deleteRecursive(new File(halfDownloadedFile.getParent()));
                                 downloadVideoObserver.cleanTransferListener();
                             }
                         });
@@ -326,7 +332,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                         });
 
                         } else {
-                            showErrorToUser("Download Limit Exceeded, Only 10 Offline Videos Allowed.\nDelete a video and try again.");
+                            showErrorToUser("Download Limit Exceeded, Only 10 Offline Videos Allowed.\nRemove a downloaded video and try again.");
                         }
 
                         break;
@@ -359,6 +365,12 @@ public class VideoDetailsFragment extends DetailsFragment {
             }
         });
         mPresenterSelector.addClassPresenter(DetailsOverviewRow.class, detailsPresenter);
+    }
+
+    private int getTotalDownloadedProjects(File directory) {
+        if (!directory.exists())
+            return 0;
+        return directory.list().length;
     }
 
     private void refreshAdapter(){

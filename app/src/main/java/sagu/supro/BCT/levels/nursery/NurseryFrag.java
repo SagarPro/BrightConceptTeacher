@@ -1,11 +1,9 @@
 package sagu.supro.BCT.levels.nursery;
 
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -29,7 +27,7 @@ import sagu.supro.BCT.leanback_lib.DetailsActivity;
 import sagu.supro.BCT.leanback_lib.Video;
 import sagu.supro.BCT.tv.SearchActivity;
 
-import static sagu.supro.BCT.tv.MainScreen.progressDialog;
+import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -54,18 +52,34 @@ public class NurseryFrag extends BrowseFragment {
         setupUIElements();
         loadRows();
         setupEventListeners();
-        if (progressDialog.isShowing())
-            progressDialog.dismiss();
     }
 
 
     public void loadRows() {
 
         offlineVideos.clear();
-        NurseryVideoList nurseryVideoList = new NurseryVideoList(getContext());
-        ArrayObjectAdapter rowsAdapter =  nurseryVideoList.setupNurseryVideos();
-        setAdapter(rowsAdapter);
-        offlineVideos.addAll(nurseryVideoList.getOfflineVideos());
+
+        final AlertDialog progressDialog = new SpotsDialog(getContext(), "This may take a while...");
+        progressDialog.show();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                NurseryVideoList nurseryVideoList = new NurseryVideoList(getContext());
+                final ArrayObjectAdapter rowsAdapter =  nurseryVideoList.setupNurseryVideos();
+                offlineVideos.addAll(nurseryVideoList.getOfflineVideos());
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setAdapter(rowsAdapter);
+                        if (progressDialog.isShowing())
+                            progressDialog.dismiss();
+                    }
+                });
+
+            }
+        }).start();
 
     }
 

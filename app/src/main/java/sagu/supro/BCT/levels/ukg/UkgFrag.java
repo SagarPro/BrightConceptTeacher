@@ -1,9 +1,7 @@
 package sagu.supro.BCT.levels.ukg;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -27,7 +25,7 @@ import sagu.supro.BCT.leanback_lib.DetailsActivity;
 import sagu.supro.BCT.leanback_lib.Video;
 import sagu.supro.BCT.tv.SearchActivity;
 
-import static sagu.supro.BCT.tv.MainScreen.progressDialog;
+import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 public class UkgFrag extends BrowseFragment {
     private static final String TAG = "UkgFrag";
@@ -49,17 +47,33 @@ public class UkgFrag extends BrowseFragment {
         setupUIElements();
         loadRows();
         setupEventListeners();
-        if (progressDialog.isShowing())
-            progressDialog.dismiss();
     }
 
     public void loadRows() {
 
         offlineVideos.clear();
-        UkgVideoList videoList = new UkgVideoList(getContext());
-        ArrayObjectAdapter rowsAdapter =  videoList.setupUkgVideos();
-        setAdapter(rowsAdapter);
-        offlineVideos.addAll(videoList.getOfflineVideos());
+
+        final AlertDialog progressDialog = new SpotsDialog(getContext(), "This may take a while...");
+        progressDialog.show();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                UkgVideoList videoList = new UkgVideoList(getContext());
+                final ArrayObjectAdapter rowsAdapter =  videoList.setupUkgVideos();
+                offlineVideos.addAll(videoList.getOfflineVideos());
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setAdapter(rowsAdapter);
+                        if (progressDialog.isShowing())
+                            progressDialog.dismiss();
+                    }
+                });
+
+            }
+        }).start();
 
     }
 
