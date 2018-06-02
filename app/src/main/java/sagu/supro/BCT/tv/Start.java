@@ -16,7 +16,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.mobile.client.AWSMobileClient;
@@ -101,13 +100,28 @@ public class Start extends Activity {
             @Override
             public void onClick(View v) {
                 if(TextUtils.isEmpty(userEmail.getText().toString()) || TextUtils.isEmpty(userPass.getText().toString())){
-                    Toast.makeText(Start.this, "Empty Fields Not Allowed", Toast.LENGTH_SHORT).show();
+                    showErrorToUser("Empty Fields Are Not Allowed");
                 }
                 else{
                     new ValidateUser().execute(userEmail.getText().toString(),userPass.getText().toString());
                 }
             }
         });
+    }
+
+    private void showErrorToUser(String errMessage){
+        AlertDialog alertDialog;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(errMessage);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        alertDialog = builder.create();
+        alertDialog.setCancelable(false);
+        alertDialog.show();
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -137,7 +151,7 @@ public class Start extends Activity {
                 for (Map<String, AttributeValue> map : userRows) {
                     if (map.get("email").getS().equals(strings[0])) {
                         if (map.get("password").getS().equals(strings[1])) {
-                            if(userEmail.getText().toString().equals("ss")) {
+                            if(userEmail.getText().toString().equals("bctroot2018")) {
                                 adminCheck = true;
                                 return "admin_success";
                             } else {

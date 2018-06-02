@@ -16,14 +16,11 @@ package sagu.supro.BCT.leanback_lib;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v17.leanback.app.VideoSupportFragment;
 import android.support.v17.leanback.app.VideoSupportFragmentGlueHost;
 import android.support.v17.leanback.media.MediaPlayerAdapter;
 import android.support.v17.leanback.media.PlaybackTransportControlGlue;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v4.content.FileProvider;
-import android.widget.Toast;
 
 import java.io.File;
 
@@ -53,7 +50,14 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
             mTransportControlGlue.setHost(glueHost);
             mTransportControlGlue.setTitle(currentVideo.getTitle());
             mTransportControlGlue.playWhenPrepared();
-            playerAdapter.setDataSource(Uri.parse(currentVideo.getVideoUrl()));
+            //playerAdapter.setDataSource(Uri.parse(currentVideo.getVideoUrl()));
+            String videoPath = currentVideo.getVideoUrl();
+            Uri uri;
+            if (videoPath.contains("https"))
+                uri = Uri.parse(videoPath.replace("https", "http"));
+            else
+                uri = Uri.parse(videoPath);
+            playerAdapter.setDataSource(uri);
         } else {
             String videoName = getActivity().getIntent().getStringExtra("VideoName");
             String videoPath = getActivity().getIntent().getStringExtra("VideoPath");
@@ -63,6 +67,7 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
             mTransportControlGlue.playWhenPrepared();
             playerAdapter.setDataSource(Uri.fromFile(new File(videoPath)));
         }
+
     }
 
     @Override

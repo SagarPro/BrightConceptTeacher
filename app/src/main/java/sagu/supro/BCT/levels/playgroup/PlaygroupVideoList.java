@@ -39,6 +39,8 @@ import sagu.supro.BCT.leanback_lib.Video;
 import sagu.supro.BCT.utils.AWSProvider;
 import sagu.supro.BCT.utils.Config;
 
+import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
+
 public class PlaygroupVideoList {
     private List<String> VIDEO_CATEGORY = new ArrayList<>();
     private List<Video> actualVideoList = new ArrayList<>();
@@ -53,8 +55,7 @@ public class PlaygroupVideoList {
     private List<PlaygroupVideosDO> numbers1To20 = new ArrayList<>();
     private List<PlaygroupVideosDO> rhymes = new ArrayList<>();
     private List<PlaygroupVideosDO> stories = new ArrayList<>();
-    private List<PlaygroupVideosDO> waterTransportation = new ArrayList<>();
-    private List<PlaygroupVideosDO> airTransportation = new ArrayList<>();
+    private List<PlaygroupVideosDO> airWaterTransportation = new ArrayList<>();
     private List<PlaygroupVideosDO> surfaceTransportation = new ArrayList<>();
     private List<PlaygroupVideosDO> goodHabits = new ArrayList<>();
     private List<PlaygroupVideosDO> fruits = new ArrayList<>();
@@ -95,109 +96,111 @@ public class PlaygroupVideoList {
         }
 
         try {
-            Boolean bgStatus = new FetchVideoDetails().execute().get();
-            if (bgStatus) {
 
-                VIDEO_CATEGORY.add("ALPHABET A TO Z");
-                VIDEO_CATEGORY.add("NUMBERS 1 TO 20 & COUNTING");
-                VIDEO_CATEGORY.add("RHYMES");
-                VIDEO_CATEGORY.add("STORIES");
-                VIDEO_CATEGORY.add("WATER TRANSPORTATION");
-                VIDEO_CATEGORY.add("AIR TRANSPORTATION");
-                VIDEO_CATEGORY.add("SURFACE TRANSPORTATION");
-                VIDEO_CATEGORY.add("GOOD HABITS");
-                VIDEO_CATEGORY.add("FRUITS");
-                VIDEO_CATEGORY.add("VEGETABLES");
-                VIDEO_CATEGORY.add("HEALTHY FOODS");
-                VIDEO_CATEGORY.add("FARM ANIMALS");
-                VIDEO_CATEGORY.add("JUNGLE ANIMALS");
-                VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
-
-                sortVideos();
-
-                rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-                CardPresenter cardPresenter = new CardPresenter();
-
-                if (downloadVideos != 0){VIDEO_CATEGORY.add("DOWNLOADED");}
-
-                int i;
-                for (i = 0; i < VIDEO_CATEGORY.size(); i++) {
-                    ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-                    actualVideoList.clear();
-                    int NUM_COLS=i;
-                    switch (i) {
-                        case 0:
-                            NUM_COLS = alphabetAToZ.size();
-                            updateActualList(alphabetAToZ);
-                            break;
-                        case 1:
-                            NUM_COLS = numbers1To20.size();
-                            updateActualList(numbers1To20);
-                            break;
-                        case 2:
-                            NUM_COLS = rhymes.size();
-                            updateActualList(rhymes);
-                            break;
-                        case 3:
-                            NUM_COLS = stories.size();
-                            updateActualList(stories);
-                            break;
-                        case 4:
-                            NUM_COLS = waterTransportation.size();
-                            updateActualList(waterTransportation);
-                            break;
-                        case 5:
-                            NUM_COLS = airTransportation.size();
-                            updateActualList(airTransportation);
-                            break;
-                        case 6:
-                            NUM_COLS = surfaceTransportation.size();
-                            updateActualList(surfaceTransportation);
-                            break;
-                        case 7:
-                            NUM_COLS = goodHabits.size();
-                            updateActualList(goodHabits);
-                            break;
-                        case 8:
-                            NUM_COLS = fruits.size();
-                            updateActualList(fruits);
-                            break;
-                        case 9:
-                            NUM_COLS = vegetables.size();
-                            updateActualList(vegetables);
-                            break;
-                        case 10:
-                            NUM_COLS = healthyFoods.size();
-                            updateActualList(healthyFoods);
-                            break;
-                        case 11:
-                            NUM_COLS = farmAnimals.size();
-                            updateActualList(farmAnimals);
-                            break;
-                        case 12:
-                            NUM_COLS = jungleAnimals.size();
-                            updateActualList(jungleAnimals);
-                            break;
-                        case 13:
-                            NUM_COLS = generalKnowledge.size();
-                            updateActualList(generalKnowledge);
-                            break;
-                        case 14:
-                            NUM_COLS = downloadVideos;
-                            addAllDownloadedVideosToRow(downloadVideos);
-                            break;
-                    }
-                    for (int j = 0; j < NUM_COLS; j++) {
-                        listRowAdapter.add(actualVideoList.get(j));
-                    }
-                    HeaderItem header = new HeaderItem(i, VIDEO_CATEGORY.get(i));
-                    rowsAdapter.add(new ListRow(header, listRowAdapter));
-                }
-            } else {
+            if (!isOnline()){
                 systemIsOfflineSoAddDownloaded(downloadVideos);
+            } else {
+
+                Boolean bgStatus = new FetchVideoDetails().execute().get();
+                if (bgStatus) {
+
+                    VIDEO_CATEGORY.add("ALPHABET A TO Z");
+                    VIDEO_CATEGORY.add("NUMBERS 1 TO 20");
+                    VIDEO_CATEGORY.add("RHYMES");
+                    VIDEO_CATEGORY.add("STORIES");
+                    VIDEO_CATEGORY.add("AIR & WATER TRANSPORTATION");
+                    VIDEO_CATEGORY.add("SURFACE TRANSPORTATION");
+                    VIDEO_CATEGORY.add("GOOD HABITS");
+                    VIDEO_CATEGORY.add("FRUITS");
+                    VIDEO_CATEGORY.add("VEGETABLES");
+                    VIDEO_CATEGORY.add("HEALTHY FOODS");
+                    VIDEO_CATEGORY.add("FARM ANIMALS");
+                    VIDEO_CATEGORY.add("JUNGLE ANIMALS");
+                    VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
+
+                    sortVideos();
+
+                    rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+                    CardPresenter cardPresenter = new CardPresenter();
+
+                    if (downloadVideos != 0) {
+                        VIDEO_CATEGORY.add("DOWNLOADED");
+                    }
+
+                    int i;
+                    for (i = 0; i < VIDEO_CATEGORY.size(); i++) {
+                        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                        actualVideoList.clear();
+                        int NUM_COLS = i;
+                        switch (i) {
+                            case 0:
+                                NUM_COLS = alphabetAToZ.size();
+                                updateActualList(alphabetAToZ);
+                                break;
+                            case 1:
+                                NUM_COLS = numbers1To20.size();
+                                updateActualList(numbers1To20);
+                                break;
+                            case 2:
+                                NUM_COLS = rhymes.size();
+                                updateActualList(rhymes);
+                                break;
+                            case 3:
+                                NUM_COLS = stories.size();
+                                updateActualList(stories);
+                                break;
+                            case 4:
+                                NUM_COLS = airWaterTransportation.size();
+                                updateActualList(airWaterTransportation);
+                                break;
+                            case 5:
+                                NUM_COLS = surfaceTransportation.size();
+                                updateActualList(surfaceTransportation);
+                                break;
+                            case 6:
+                                NUM_COLS = goodHabits.size();
+                                updateActualList(goodHabits);
+                                break;
+                            case 7:
+                                NUM_COLS = fruits.size();
+                                updateActualList(fruits);
+                                break;
+                            case 8:
+                                NUM_COLS = vegetables.size();
+                                updateActualList(vegetables);
+                                break;
+                            case 9:
+                                NUM_COLS = healthyFoods.size();
+                                updateActualList(healthyFoods);
+                                break;
+                            case 10:
+                                NUM_COLS = farmAnimals.size();
+                                updateActualList(farmAnimals);
+                                break;
+                            case 11:
+                                NUM_COLS = jungleAnimals.size();
+                                updateActualList(jungleAnimals);
+                                break;
+                            case 12:
+                                NUM_COLS = generalKnowledge.size();
+                                updateActualList(generalKnowledge);
+                                break;
+                            case 13:
+                                NUM_COLS = downloadVideos;
+                                addAllDownloadedVideosToRow(downloadVideos);
+                                break;
+                        }
+                        for (int j = 0; j < NUM_COLS; j++) {
+                            listRowAdapter.add(actualVideoList.get(j));
+                        }
+                        HeaderItem header = new HeaderItem(i, VIDEO_CATEGORY.get(i));
+                        rowsAdapter.add(new ListRow(header, listRowAdapter));
+                    }
+                } else {
+                    systemIsOfflineSoAddDownloaded(downloadVideos);
+                }
             }
         } catch (Exception e) {
-
             e.printStackTrace();
         }
 
@@ -210,8 +213,7 @@ public class PlaygroupVideoList {
         Collections.sort(numbers1To20, new PlaygroupVideoIdComparator());
         Collections.sort(rhymes, new PlaygroupVideoIdComparator());
         Collections.sort(stories, new PlaygroupVideoIdComparator());
-        Collections.sort(waterTransportation, new PlaygroupVideoIdComparator());
-        Collections.sort(airTransportation, new PlaygroupVideoIdComparator());
+        Collections.sort(airWaterTransportation, new PlaygroupVideoIdComparator());
         Collections.sort(surfaceTransportation, new PlaygroupVideoIdComparator());
         Collections.sort(goodHabits, new PlaygroupVideoIdComparator());
         Collections.sort(fruits, new PlaygroupVideoIdComparator());
@@ -276,25 +278,29 @@ public class PlaygroupVideoList {
             rowsAdapter.add(new ListRow(header, listRowAdapter));
 
         } else {
-
-            AlertDialog alertDialog;
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            runOnUiThread(new Runnable() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
+                public void run() {
+                    AlertDialog alertDialog;
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    builder.setTitle("No Downloaded Videos");
+                    alertDialog = builder.create();
+                    alertDialog.show();
                 }
             });
-
-            builder.setTitle("No Downloaded Videos");
-            alertDialog = builder.create();
-            alertDialog.show();
         }
     }
 
     private void updateActualList(List<PlaygroupVideosDO> topic) {
-        Video video = new Video();
         for(int i = 0;i<topic.size();i++){
+            Video video = new Video();
             video.setId(topic.get(i).getVideoId());
             video.setTitle(topic.get(i).getVideoTitle());
             video.setDescription(topic.get(i).getVideoDescription());
@@ -349,6 +355,17 @@ public class PlaygroupVideoList {
         //searchVideos.clear();
     }
 
+    private Boolean isOnline() {
+        try {
+            Process p1 = java.lang.Runtime.getRuntime().exec("ping -c 1 www.google.com");
+            int returnVal = p1.waitFor();
+            return (returnVal==0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     @SuppressLint("StaticFieldLeak")
     class FetchVideoDetails extends AsyncTask<String, Void, Boolean> {
 
@@ -380,8 +397,8 @@ public class PlaygroupVideoList {
                         case "GENERAL KNOWLEDGE":
                             generalKnowledge.add(playgroupVideosDO);
                             break;
-                        case "AIR TRANSPORTATION" :
-                            airTransportation.add(playgroupVideosDO);
+                        case "AIR & WATER TRANSPORTATION" :
+                            airWaterTransportation.add(playgroupVideosDO);
                             break;
                         case "SURFACE TRANSPORTATION":
                             surfaceTransportation.add(playgroupVideosDO);
@@ -403,9 +420,6 @@ public class PlaygroupVideoList {
                             break;
                         case "JUNGLE ANIMALS":
                             jungleAnimals.add(playgroupVideosDO);
-                            break;
-                        case "WATER TRANSPORTATION":
-                            waterTransportation.add(playgroupVideosDO);
                             break;
                     }
                 }

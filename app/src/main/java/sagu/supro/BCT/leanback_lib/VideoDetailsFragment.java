@@ -14,6 +14,12 @@
 
 package sagu.supro.BCT.leanback_lib;
 
+import android.Manifest;
+import android.app.Dialog;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v17.leanback.app.DetailsFragment;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -35,6 +41,7 @@ import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -80,6 +87,8 @@ import static sagu.supro.BCT.levels.ukg.UkgFrag.ukgFrag;
 public class VideoDetailsFragment extends DetailsFragment {
 
     private static final String TAG = "VideoDetailsFragment";
+
+    private static final int REQUEST_STORAGE = 7;
 
     private static final int ACTION_STREAMONLINE = 1;
     private static final int ACTION_DOWNLOAD = 2;
@@ -204,167 +213,218 @@ public class VideoDetailsFragment extends DetailsFragment {
             public void onActionClicked(Action action) {
                 switch ((int) action.getId()){
                     case ACTION_STREAMONLINE:
-                        Intent intent = new Intent(getActivity(), PlaybackActivity.class);
-                        intent.putExtra(DetailsActivity.VIDEO, mSelectedVideo);
-                        intent.putExtra("Type","Online");
-                        startActivity(intent);
+                        streamOnline();
                         break;
                     case ACTION_DOWNLOAD:
-
-                        int totalOfflineVideos = getTotalDownloadedProjects(new File(Environment.getExternalStorageDirectory()+"/.BCT/Nursery"))
-                                + getTotalDownloadedProjects(new File(Environment.getExternalStorageDirectory()+"/.BCT/LKG"))
-                                + getTotalDownloadedProjects(new File(Environment.getExternalStorageDirectory()+"/.BCT/UKG"))
-                                + getTotalDownloadedProjects(new File(Environment.getExternalStorageDirectory()+"/.BCT/Playgroup"));
-
-                        if (totalOfflineVideos < 10) {
-
-                        final AlertDialog alertDialog;
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                        LayoutInflater inflater = getActivity().getLayoutInflater();
-                        final View dialogView = inflater.inflate(R.layout.download_status, null);
-                        progressBar = dialogView.findViewById(R.id.pb_download);
-                        showProg = dialogView.findViewById(R.id.tv_show_progress);
-                        builder.setTitle("Downloading, Please Wait");
-                        builder.setView(dialogView);
-
-                        String videoName = mSelectedVideo.getId()+".mp4";
-                        final File path = Environment.getExternalStorageDirectory();
-                        File file = new File(path+"/.BCT/"+level+"/"+mSelectedVideo.getId()+"/");
-                        file.mkdirs();
-                        final String filePath = path+"/.BCT/"+level+"/"+mSelectedVideo.getId()+"/"+videoName;
-
-                        AWSCredentials awsCredentials = new BasicAWSCredentials(Config.ACCESSKEY, Config.SECRETKEY);
-                        AmazonS3Client s3 = new AmazonS3Client(awsCredentials);
-                        s3.setRegion(Region.getRegion(Regions.US_EAST_1));
-
-                        final TransferUtility transferUtility = TransferUtility.builder().context(getContext())
-                                .s3Client(s3)
-                                .build();
-
-                        final TransferObserver downloadVideoObserver = transferUtility.download(
-                                "bkmhbct/"+level, videoName,
-                                new File(filePath));
-
-                        builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                File dir = new File(Environment.getExternalStorageDirectory()+"/.BCT/"+level+"/"+mSelectedVideo.getId());
-                                //File halfDownloadedFile = new File(downloadVideoObserver.getAbsoluteFilePath());
-                                deleteRecursive(dir);
-                                refreshAdapter();
-                                dialog.dismiss();
-                                downloadVideoObserver.cleanTransferListener();
-                            }
-                        });
-                        alertDialog = builder.create();
-                        alertDialog.setCancelable(false);
-                        alertDialog.show();
-
-                        downloadVideoObserver.setTransferListener(new TransferListener() {
-                            @Override
-                            public void onStateChanged(int id, TransferState state) {
-                                if (TransferState.COMPLETED == state) {
-                                    Log.d("Video", "Success");
-
-                                    String imageName = mSelectedVideo.getId() + ".jpg";
-                                    String imagePath = path + "/.BCT/" +level+"/" + mSelectedVideo.getId() + "/"+imageName;
-
-                                    TransferObserver downloadImageObserver = transferUtility.download(
-                                            "bkmhbct/"+level, imageName,
-                                            new File(imagePath));
-
-                                    downloadImageObserver.setTransferListener(new TransferListener() {
-                                        @Override
-                                        public void onStateChanged(int id, TransferState state) {
-                                            if (TransferState.COMPLETED == state) {
-
-                                                String desc = mSelectedVideo.getTitle() + "\n" + mSelectedVideo.getDescription() + "\n" + level;
-                                                generateNoteOnSD(mSelectedVideo.getId() + ".txt", desc);
-
-                                                actionAdapter.clear();
-                                                actionAdapter.add(new Action(ACTION_PLAY, "Play"));
-                                                actionAdapter.add(new Action(ACTION_REMOVE, "Remove"));
-
-                                                alertDialog.dismiss();
-
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                                        }
-
-                                        @Override
-                                        public void onError(int id, Exception ex) {
-                                            alertDialog.dismiss();
-                                            showErrorToUser("Exception : " + ex.getMessage());
-                                            Log.d("Progress", ex.getMessage());
-                                        }
-                                    });
-                                }
-                            }
-
-                            @Override
-                            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                                try{
-                                    progressBar.setMax((int) bytesTotal);
-                                    progressBar.setProgress((int) bytesCurrent);
-                                    if(bytesCurrent!=0){
-                                        showProg.setText(""+((int) bytesCurrent/(1024*1024))+"/"+(int) (bytesTotal/(1024*1024))+"mb");
-                                    }
-                                    else{
-                                        showProg.setText("0/"+(int) (bytesTotal/(1024*1024))+"MB");
-                                    }
-                                    /*if(bytesCurrent==bytesTotal){
-                                    }*/
-                                }catch (Exception e){
-                                    alertDialog.dismiss();
-                                    showErrorToUser("Exception : " + e.getMessage());
-                                    e.printStackTrace();
-                                }
-                            }
-                            @Override
-                            public void onError(int id, Exception ex) {
-                                alertDialog.dismiss();
-                                showErrorToUser("Exception : "+ex.getMessage());
-                                Log.d("Progress", ex.getMessage());
-                            }
-                        });
-
-                        } else {
-                            showErrorToUser("Download Limit Exceeded, Only 10 Offline Videos Allowed.\nRemove a downloaded video and try again.");
-                        }
-
+                        storagePermissionCheck();
                         break;
                     case ACTION_PLAY:
-                        Intent playIntent = new Intent(getActivity(), PlaybackActivity.class);
-                        playIntent.putExtra(DetailsActivity.VIDEO, mSelectedVideo);
-                        playIntent.putExtra("Type","Downloaded");
-                        playIntent.putExtra("VideoName",mSelectedVideo.getTitle());
-                        String videoPath = Environment.getExternalStorageDirectory()+"/.BCT/"+level+"/"+mSelectedVideo.getId()+"/"+mSelectedVideo.getId()+".mp4";
-                        playIntent.putExtra("VideoPath",videoPath);
-                        startActivity(playIntent);
+                        playDownloaded();
                         break;
                     case ACTION_REMOVE:
-                        AlertDialog progressDialog = new SpotsDialog(getActivity(),"Removing Please Wait...");
-                        progressDialog.show();
-
-                        File dir = new File(Environment.getExternalStorageDirectory()+"/.BCT/"+level+"/"+mSelectedVideo.getId());
-                        deleteRecursive(dir);
-
-                        refreshAdapter();
-
-                        actionAdapter.clear();
-                        actionAdapter.add(new Action(ACTION_STREAMONLINE, "Stream Online"));
-                        actionAdapter.add(new Action(ACTION_DOWNLOAD, "Download"));
-
-                        getActivity().finish();
-
+                        removeDownloaded();
                         break;
                 }
             }
         });
         mPresenterSelector.addClassPresenter(DetailsOverviewRow.class, detailsPresenter);
+    }
+
+    private void streamOnline(){
+        Intent intent = new Intent(getActivity(), PlaybackActivity.class);
+        intent.putExtra(DetailsActivity.VIDEO, mSelectedVideo);
+        intent.putExtra("Type","Online");
+        startActivity(intent);
+    }
+
+    private void downloadFiles(){
+
+        int totalOfflineVideos = getTotalDownloadedProjects(new File(Environment.getExternalStorageDirectory()+"/.BCT/Nursery"))
+                + getTotalDownloadedProjects(new File(Environment.getExternalStorageDirectory()+"/.BCT/LKG"))
+                + getTotalDownloadedProjects(new File(Environment.getExternalStorageDirectory()+"/.BCT/UKG"))
+                + getTotalDownloadedProjects(new File(Environment.getExternalStorageDirectory()+"/.BCT/Playgroup"));
+
+        if (totalOfflineVideos < 10) {
+
+            final AlertDialog alertDialog;
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            final View dialogView = inflater.inflate(R.layout.download_status, null);
+            progressBar = dialogView.findViewById(R.id.pb_download);
+            showProg = dialogView.findViewById(R.id.tv_show_progress);
+            builder.setTitle("Downloading, Please Wait");
+            builder.setView(dialogView);
+
+            String videoName = mSelectedVideo.getId()+".mp4";
+            final File path = Environment.getExternalStorageDirectory();
+            File file = new File(path+"/.BCT/"+level+"/"+mSelectedVideo.getId()+"/");
+            file.mkdirs();
+            final String filePath = path+"/.BCT/"+level+"/"+mSelectedVideo.getId()+"/"+videoName;
+
+            AWSCredentials awsCredentials = new BasicAWSCredentials(Config.ACCESSKEY, Config.SECRETKEY);
+            AmazonS3Client s3 = new AmazonS3Client(awsCredentials);
+            s3.setRegion(Region.getRegion(Regions.US_EAST_1));
+
+            final TransferUtility transferUtility = TransferUtility.builder().context(getContext())
+                    .s3Client(s3)
+                    .build();
+
+            final TransferObserver downloadVideoObserver = transferUtility.download(
+                    "bkmhbct/"+level, videoName,
+                    new File(filePath));
+
+            builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    File dir = new File(Environment.getExternalStorageDirectory()+"/.BCT/"+level+"/"+mSelectedVideo.getId());
+                    //File halfDownloadedFile = new File(downloadVideoObserver.getAbsoluteFilePath());
+                    deleteRecursive(dir);
+                    refreshAdapter();
+                    dialog.dismiss();
+                    downloadVideoObserver.cleanTransferListener();
+                }
+            });
+            alertDialog = builder.create();
+            alertDialog.setCancelable(false);
+            alertDialog.show();
+
+            downloadVideoObserver.setTransferListener(new TransferListener() {
+                @Override
+                public void onStateChanged(int id, TransferState state) {
+                    if (TransferState.COMPLETED == state) {
+                        Log.d("Video", "Success");
+
+                        String imageName = mSelectedVideo.getId() + ".jpg";
+                        String imagePath = path + "/.BCT/" +level+"/" + mSelectedVideo.getId() + "/"+imageName;
+
+                        TransferObserver downloadImageObserver = transferUtility.download(
+                                "bkmhbct/"+level, imageName,
+                                new File(imagePath));
+
+                        downloadImageObserver.setTransferListener(new TransferListener() {
+                            @Override
+                            public void onStateChanged(int id, TransferState state) {
+                                if (TransferState.COMPLETED == state) {
+
+                                    String desc = mSelectedVideo.getTitle() + "\n" + mSelectedVideo.getDescription() + "\n" + level;
+                                    generateNoteOnSD(mSelectedVideo.getId() + ".txt", desc);
+
+                                    actionAdapter.clear();
+                                    actionAdapter.add(new Action(ACTION_PLAY, "Play"));
+                                    actionAdapter.add(new Action(ACTION_REMOVE, "Remove"));
+
+                                    alertDialog.dismiss();
+
+                                }
+                            }
+
+                            @Override
+                            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                            }
+
+                            @Override
+                            public void onError(int id, Exception ex) {
+                                alertDialog.dismiss();
+                                showErrorToUser("Exception : " + ex.getMessage());
+                                Log.d("Progress", ex.getMessage());
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                    try{
+                        progressBar.setMax((int) bytesTotal);
+                        progressBar.setProgress((int) bytesCurrent);
+                        if(bytesCurrent!=0){
+                            showProg.setText(""+((int) bytesCurrent/(1024*1024))+"/"+(int) (bytesTotal/(1024*1024))+"mb");
+                        }
+                        else{
+                            showProg.setText("0/"+(int) (bytesTotal/(1024*1024))+"MB");
+                        }
+                                    /*if(bytesCurrent==bytesTotal){
+                                    }*/
+                    }catch (Exception e){
+                        alertDialog.dismiss();
+                        showErrorToUser("Exception : " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+                @Override
+                public void onError(int id, Exception ex) {
+                    alertDialog.dismiss();
+                    showErrorToUser("Exception : "+ex.getMessage());
+                    Log.d("Progress", ex.getMessage());
+                }
+            });
+
+        } else {
+            showErrorToUser("Download Limit Exceeded, Only 10 Offline Videos Allowed.\nRemove a downloaded video and try again.");
+        }
+
+    }
+
+    private void playDownloaded(){
+        Intent playIntent = new Intent(getActivity(), PlaybackActivity.class);
+        playIntent.putExtra(DetailsActivity.VIDEO, mSelectedVideo);
+        playIntent.putExtra("Type","Downloaded");
+        playIntent.putExtra("VideoName",mSelectedVideo.getTitle());
+        String videoPath = Environment.getExternalStorageDirectory()+"/.BCT/"+level+"/"+mSelectedVideo.getId()+"/"+mSelectedVideo.getId()+".mp4";
+        playIntent.putExtra("VideoPath",videoPath);
+        startActivity(playIntent);
+    }
+
+    private void removeDownloaded(){
+        AlertDialog progressDialog = new SpotsDialog(getActivity(),"Removing Please Wait...");
+        progressDialog.show();
+
+        File dir = new File(Environment.getExternalStorageDirectory()+"/.BCT/"+level+"/"+mSelectedVideo.getId());
+        deleteRecursive(dir);
+
+        refreshAdapter();
+
+        actionAdapter.clear();
+        actionAdapter.add(new Action(ACTION_STREAMONLINE, "Stream Online"));
+        actionAdapter.add(new Action(ACTION_DOWNLOAD, "Download"));
+
+        getActivity().finish();
+    }
+
+    private void storagePermissionCheck(){
+        int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if(permissionCheck == 0) {
+            downloadFiles();
+        } else {
+            permissionDenied();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    downloadFiles();
+                }
+            }
+        }
+    }
+
+    private void permissionDenied(){
+        AlertDialog alertDialog;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Allow Storage Permission to download videos.");
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE);
+            }
+        });
+        alertDialog = builder.create();
+        alertDialog.setCancelable(false);
+        alertDialog.show();
     }
 
     private int getTotalDownloadedProjects(File directory) {

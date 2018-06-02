@@ -41,6 +41,8 @@ import sagu.supro.BCT.levels.nursery.NurseryVideoList;
 import sagu.supro.BCT.utils.AWSProvider;
 import sagu.supro.BCT.utils.Config;
 
+import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
+
 public class UkgVideoList {
 
     private List<String> VIDEO_CATEGORY = new ArrayList<>();
@@ -89,61 +91,65 @@ public class UkgVideoList {
         }
 
         try {
-            Boolean bgStatus = new FetchVideoDetails().execute().get();
-            if (bgStatus) {
-
-                VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
-                VIDEO_CATEGORY.add("RHYMES");
-                VIDEO_CATEGORY.add("PHONICS");
-                VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
-
-                sortVideos();
-
-                rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-                CardPresenter cardPresenter = new CardPresenter();
-
-                if (downloadVideos != 0){
-                    VIDEO_CATEGORY.add("DOWNLOADED");
-                }
-
-                int i;
-                for (i = 0; i < VIDEO_CATEGORY.size(); i++) {
-                    ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-                    actualVideoList.clear();
-                    int NUM_COLS = i;
-                    switch (i) {
-                        case 0:
-                            NUM_COLS = generalKnowledge.size();
-                            updateActualList(generalKnowledge);
-                            break;
-                        case 1:
-                            NUM_COLS = rhymes.size();
-                            updateActualList(rhymes);
-                            break;
-                        case 2:
-                            NUM_COLS = phonics.size();
-                            updateActualList(phonics);
-                            break;
-                        case 3:
-                            NUM_COLS = alphabetNumberWriting.size();
-                            updateActualList(alphabetNumberWriting);
-                            break;
-                        case 5:
-                            NUM_COLS = downloadVideos;
-                            addAllDownloadedVideosToRow(downloadVideos);
-                            break;
-                    }
-                    for (int j = 0; j < NUM_COLS; j++) {
-                        listRowAdapter.add(actualVideoList.get(j));
-                    }
-                    HeaderItem header = new HeaderItem(i, VIDEO_CATEGORY.get(i));
-                    rowsAdapter.add(new ListRow(header, listRowAdapter));
-                }
-            } else {
+            if (!isOnline()){
                 setDownloadedVideos(downloadVideos);
+            } else {
+
+                Boolean bgStatus = new FetchVideoDetails().execute().get();
+                if (bgStatus) {
+
+                    VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
+                    VIDEO_CATEGORY.add("RHYMES");
+                    VIDEO_CATEGORY.add("PHONICS");
+                    VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
+
+                    sortVideos();
+
+                    rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+                    CardPresenter cardPresenter = new CardPresenter();
+
+                    if (downloadVideos != 0) {
+                        VIDEO_CATEGORY.add("DOWNLOADED");
+                    }
+
+                    int i;
+                    for (i = 0; i < VIDEO_CATEGORY.size(); i++) {
+                        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                        actualVideoList.clear();
+                        int NUM_COLS = i;
+                        switch (i) {
+                            case 0:
+                                NUM_COLS = generalKnowledge.size();
+                                updateActualList(generalKnowledge);
+                                break;
+                            case 1:
+                                NUM_COLS = rhymes.size();
+                                updateActualList(rhymes);
+                                break;
+                            case 2:
+                                NUM_COLS = phonics.size();
+                                updateActualList(phonics);
+                                break;
+                            case 3:
+                                NUM_COLS = alphabetNumberWriting.size();
+                                updateActualList(alphabetNumberWriting);
+                                break;
+                            case 5:
+                                NUM_COLS = downloadVideos;
+                                addAllDownloadedVideosToRow(downloadVideos);
+                                break;
+                        }
+                        for (int j = 0; j < NUM_COLS; j++) {
+                            listRowAdapter.add(actualVideoList.get(j));
+                        }
+                        HeaderItem header = new HeaderItem(i, VIDEO_CATEGORY.get(i));
+                        rowsAdapter.add(new ListRow(header, listRowAdapter));
+                    }
+                } else {
+                    setDownloadedVideos(downloadVideos);
+                }
             }
         } catch (Exception e) {
-
             e.printStackTrace();
         }
         return rowsAdapter;
@@ -188,20 +194,23 @@ public class UkgVideoList {
             rowsAdapter.add(new ListRow(header, listRowAdapter));
 
         } else {
-
-            AlertDialog alertDialog;
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            runOnUiThread(new Runnable() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
+                public void run() {
+                    AlertDialog alertDialog;
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    builder.setTitle("No Downloaded Videos");
+                    alertDialog = builder.create();
+                    alertDialog.show();
                 }
             });
-
-            builder.setTitle("No Downloaded Videos");
-            alertDialog = builder.create();
-            alertDialog.show();
-
         }
     }
 
@@ -276,6 +285,17 @@ public class UkgVideoList {
                 offlineVideos.add(video.getId());
             }
         }
+    }
+
+    private Boolean isOnline() {
+        try {
+            Process p1 = java.lang.Runtime.getRuntime().exec("ping -c 1 www.google.com");
+            int returnVal = p1.waitFor();
+            return (returnVal==0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public List<String> getOfflineVideos(){

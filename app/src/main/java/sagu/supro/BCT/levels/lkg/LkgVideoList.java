@@ -41,6 +41,8 @@ import sagu.supro.BCT.leanback_lib.Video;
 import sagu.supro.BCT.utils.AWSProvider;
 import sagu.supro.BCT.utils.Config;
 
+import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
+
 public class LkgVideoList {
     private List<String> VIDEO_CATEGORY = new ArrayList<>();
     private List<Video> actualVideoList = new ArrayList<>();
@@ -87,64 +89,71 @@ public class LkgVideoList {
         }
         
         try {
-            Boolean bgStatus = new FetchVideoDetails().execute().get();
-            if (bgStatus) {
 
-                VIDEO_CATEGORY.add("GOOD HABITS & SAFETY");
-                VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
-                VIDEO_CATEGORY.add("PHONICS");
-                VIDEO_CATEGORY.add("RHYMES");
-                VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
-
-                sortVideos();
-
-                rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-                CardPresenter cardPresenter = new CardPresenter();
-
-                if (downloadVideos != 0){VIDEO_CATEGORY.add("DOWNLOADED");}
-
-                int i;
-                for (i = 0; i < VIDEO_CATEGORY.size(); i++) {
-                    ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-                    actualVideoList.clear();
-                    int NUM_COLS=i;
-                    switch (i) {
-                        case 0:
-                            NUM_COLS = goodHabitsAndSafety.size();
-                            updateActualList(goodHabitsAndSafety);
-                            break;
-                        case 1:
-                            NUM_COLS = generalKnowledge.size();
-                            updateActualList(generalKnowledge);
-                            break;
-                        case 2:
-                            NUM_COLS = rhymes.size();
-                            updateActualList(rhymes);
-                            break;
-                        case 3:
-                            NUM_COLS = phonics.size();
-                            updateActualList(phonics);
-                            break;
-                        case 4:
-                            NUM_COLS = alphabetAndNumberWriting.size();
-                            updateActualList(alphabetAndNumberWriting);
-                            break;
-                        case 5:
-                            NUM_COLS = downloadVideos;
-                            addAllDownloadedVideosToRow(downloadVideos);
-                            break;
-                    }
-                    for (int j = 0; j < NUM_COLS; j++) {
-                        listRowAdapter.add(actualVideoList.get(j));
-                    }
-                    HeaderItem header = new HeaderItem(i, VIDEO_CATEGORY.get(i));
-                    rowsAdapter.add(new ListRow(header, listRowAdapter));
-                }
-            } else {
+            if (!isOnline()){
                 systemIsOfflineSoAddDownloaded(downloadVideos);
+            } else {
+
+                Boolean bgStatus = new FetchVideoDetails().execute().get();
+                if (bgStatus) {
+
+                    VIDEO_CATEGORY.add("GOOD HABITS & SAFETY");
+                    VIDEO_CATEGORY.add("GENERAL KNOWLEDGE");
+                    VIDEO_CATEGORY.add("PHONICS");
+                    VIDEO_CATEGORY.add("RHYMES");
+                    VIDEO_CATEGORY.add("ALPHABET & NUMBER WRITING");
+
+                    sortVideos();
+
+                    rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+                    CardPresenter cardPresenter = new CardPresenter();
+
+                    if (downloadVideos != 0) {
+                        VIDEO_CATEGORY.add("DOWNLOADED");
+                    }
+
+                    int i;
+                    for (i = 0; i < VIDEO_CATEGORY.size(); i++) {
+                        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                        actualVideoList.clear();
+                        int NUM_COLS = i;
+                        switch (i) {
+                            case 0:
+                                NUM_COLS = goodHabitsAndSafety.size();
+                                updateActualList(goodHabitsAndSafety);
+                                break;
+                            case 1:
+                                NUM_COLS = generalKnowledge.size();
+                                updateActualList(generalKnowledge);
+                                break;
+                            case 2:
+                                NUM_COLS = rhymes.size();
+                                updateActualList(rhymes);
+                                break;
+                            case 3:
+                                NUM_COLS = phonics.size();
+                                updateActualList(phonics);
+                                break;
+                            case 4:
+                                NUM_COLS = alphabetAndNumberWriting.size();
+                                updateActualList(alphabetAndNumberWriting);
+                                break;
+                            case 5:
+                                NUM_COLS = downloadVideos;
+                                addAllDownloadedVideosToRow(downloadVideos);
+                                break;
+                        }
+                        for (int j = 0; j < NUM_COLS; j++) {
+                            listRowAdapter.add(actualVideoList.get(j));
+                        }
+                        HeaderItem header = new HeaderItem(i, VIDEO_CATEGORY.get(i));
+                        rowsAdapter.add(new ListRow(header, listRowAdapter));
+                    }
+                } else {
+                    systemIsOfflineSoAddDownloaded(downloadVideos);
+                }
             }
         } catch (Exception e) {
-
             e.printStackTrace();
         }
 
@@ -214,25 +223,29 @@ public class LkgVideoList {
             rowsAdapter.add(new ListRow(header, listRowAdapter));
 
         } else {
-
-            AlertDialog alertDialog;
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            runOnUiThread(new Runnable() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
+                public void run() {
+                    AlertDialog alertDialog;
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    builder.setTitle("No Downloaded Videos");
+                    alertDialog = builder.create();
+                    alertDialog.show();
                 }
             });
-
-            builder.setTitle("No Downloaded Videos");
-            alertDialog = builder.create();
-            alertDialog.show();
         }
     }
 
     private void updateActualList(List<LKGVideosDO> topic) {
-        Video video = new Video();
         for(int i = 0;i<topic.size();i++){
+            Video video = new Video();
             video.setId(topic.get(i).getVideoId());
             video.setTitle(topic.get(i).getVideoTitle());
             video.setDescription(topic.get(i).getVideoDescription());
@@ -284,6 +297,17 @@ public class LkgVideoList {
         downloadedCardImage.clear();
         downloadedVideoName.clear();
         offlineVideos.clear();
+    }
+
+    private Boolean isOnline() {
+        try {
+            Process p1 = java.lang.Runtime.getRuntime().exec("ping -c 1 www.google.com");
+            int returnVal = p1.waitFor();
+            return (returnVal==0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @SuppressLint("StaticFieldLeak")
