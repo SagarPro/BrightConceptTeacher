@@ -36,6 +36,8 @@ public class NurseryFrag extends BrowseFragment {
     private static final String TAG = "NurseryFrag";
 
     private List<String> offlineVideos = new ArrayList<>();
+    private NurseryVideoList nurseryVideoList;
+    private ArrayObjectAdapter rowsAdapter;
 
     public static NurseryFrag nurseryFrag;
 
@@ -65,8 +67,8 @@ public class NurseryFrag extends BrowseFragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                NurseryVideoList nurseryVideoList = new NurseryVideoList(getContext());
-                final ArrayObjectAdapter rowsAdapter =  nurseryVideoList.setupNurseryVideos();
+                nurseryVideoList = new NurseryVideoList(getContext());
+                rowsAdapter =  nurseryVideoList.setupNurseryVideos();
                 offlineVideos.addAll(nurseryVideoList.getOfflineVideos());
 
                 runOnUiThread(new Runnable() {
@@ -81,6 +83,11 @@ public class NurseryFrag extends BrowseFragment {
             }
         }).start();
 
+    }
+
+    public void refreshDownloads(){
+        nurseryVideoList.addAllDownloadedVideosToRow(nurseryVideoList.getTotalDownloadedProjects());
+        rowsAdapter.notify();
     }
 
     private void setupUIElements() {

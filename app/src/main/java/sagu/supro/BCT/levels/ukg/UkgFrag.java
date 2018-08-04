@@ -31,6 +31,8 @@ public class UkgFrag extends BrowseFragment {
     private static final String TAG = "UkgFrag";
 
     private List<String> offlineVideos = new ArrayList<>();
+    private UkgVideoList videoList;
+    private ArrayObjectAdapter rowsAdapter;
 
     public static UkgFrag ukgFrag;
 
@@ -59,8 +61,8 @@ public class UkgFrag extends BrowseFragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                UkgVideoList videoList = new UkgVideoList(getContext());
-                final ArrayObjectAdapter rowsAdapter =  videoList.setupUkgVideos();
+                videoList = new UkgVideoList(getContext());
+                rowsAdapter =  videoList.setupUkgVideos();
                 offlineVideos.addAll(videoList.getOfflineVideos());
 
                 runOnUiThread(new Runnable() {
@@ -75,6 +77,11 @@ public class UkgFrag extends BrowseFragment {
             }
         }).start();
 
+    }
+
+    public void refreshDownloads(){
+        videoList.addAllDownloadedVideosToRow(videoList.getTotalDownloadedProjects());
+        rowsAdapter.notify();
     }
 
     private void setupUIElements() {

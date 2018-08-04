@@ -31,6 +31,8 @@ public class PlaygroupFrag extends BrowseFragment {
     private static final String TAG = "PlaygroupFrag";
 
     private List<String> offlineVideos = new ArrayList<>();
+    private PlaygroupVideoList videoList;
+    private ArrayObjectAdapter rowsAdapter;
 
     public static PlaygroupFrag playgroupFrag;
 
@@ -60,8 +62,8 @@ public class PlaygroupFrag extends BrowseFragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                PlaygroupVideoList videoList = new PlaygroupVideoList(getContext());
-                final ArrayObjectAdapter rowsAdapter =  videoList.setupPlaygroupVideos();
+                videoList = new PlaygroupVideoList(getContext());
+                rowsAdapter =  videoList.setupPlaygroupVideos();
                 offlineVideos.addAll(videoList.getOfflineVideos());
 
                 runOnUiThread(new Runnable() {
@@ -76,6 +78,11 @@ public class PlaygroupFrag extends BrowseFragment {
             }
         }).start();
 
+    }
+
+    public void refreshDownloads(){
+        videoList.addAllDownloadedVideosToRow(videoList.getTotalDownloadedProjects());
+        rowsAdapter.notify();
     }
 
     private void setupUIElements() {

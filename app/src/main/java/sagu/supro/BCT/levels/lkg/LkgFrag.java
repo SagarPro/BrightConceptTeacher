@@ -31,7 +31,8 @@ public class LkgFrag extends BrowseFragment {
     private static final String TAG = "LkgFrag";
 
     private List<String> offlineVideos = new ArrayList<>();
-
+    private LkgVideoList videoList;
+    private ArrayObjectAdapter rowsAdapter;
     public static LkgFrag lkgFrag;
 
     @Override
@@ -60,8 +61,8 @@ public class LkgFrag extends BrowseFragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                LkgVideoList videoList = new LkgVideoList(getContext());
-                final ArrayObjectAdapter rowsAdapter =  videoList.setupLkgVideos();
+                videoList = new LkgVideoList(getContext());
+                rowsAdapter =  videoList.setupLkgVideos();
                 offlineVideos.addAll(videoList.getOfflineVideos());
 
                 runOnUiThread(new Runnable() {
@@ -76,6 +77,11 @@ public class LkgFrag extends BrowseFragment {
             }
         }).start();
 
+    }
+
+    public void refreshDownloads(){
+        videoList.addAllDownloadedVideosToRow(videoList.getTotalDownloadedProjects());
+        rowsAdapter.notify();
     }
 
     private void setupUIElements() {

@@ -284,27 +284,28 @@ public class NurseryVideoList {
         }
     }
 
-    private int getTotalDownloadedProjects() {
+    public int getTotalDownloadedProjects() {
         File directory=new File(Environment.getExternalStorageDirectory()+"/.BCT/Nursery");
         getDownloadedVideoNames(directory);
-        return directory.list().length;
+        return downloadedVideoName.size();
     }
 
     private void getDownloadedVideoNames(File directory) {
         File[] fileList = directory.listFiles();
-        for(File currentFile : fileList){
-            if(!currentFile.isDirectory() && getMimeType(currentFile.getName()).equals("video/mp4")){
-                downloadedVideoName.add(currentFile.getPath());
-            }
-            else if(!currentFile.isDirectory() && getMimeType(currentFile.getName()).equals("image/jpeg")){
-                downloadedCardImage.add(currentFile.getPath());
-            }
-            else if(!currentFile.isDirectory() && getMimeType(currentFile.getName()).equals("text/plain")){
-                downloadedVideoDesc.add(currentFile.getPath());
-            }
-            else{
-                downloadedVideoId.add(currentFile.getName());
-                getDownloadedVideoNames(currentFile);
+        if (fileList != null) {
+            for (File currentFile : fileList) {
+                if (!currentFile.isDirectory() && getMimeType(currentFile.getName()).equals("video/mp4")) {
+                    downloadedVideoName.add(currentFile.getPath());
+                } else if (!currentFile.isDirectory() && getMimeType(currentFile.getName()).equals("image/jpeg")) {
+                    downloadedCardImage.add(currentFile.getPath());
+                } else if (!currentFile.isDirectory() && getMimeType(currentFile.getName()).equals("text/plain")) {
+                    downloadedVideoDesc.add(currentFile.getPath());
+                } else {
+                    if (currentFile.length() != 0) {
+                        downloadedVideoId.add(currentFile.getName());
+                        getDownloadedVideoNames(currentFile);
+                    }
+                }
             }
         }
     }
@@ -328,31 +329,35 @@ public class NurseryVideoList {
         }
     }
 
-    private void addAllDownloadedVideosToRow(int size) {
+    public void addAllDownloadedVideosToRow(int size) {
         String[] title_desc = new String[3];
-        for (int i = 0; i < size; i++) {
-            Video video = new Video();
-            video.setId(downloadedVideoId.get(i));
-            File textFile = new File(downloadedVideoDesc.get(i));
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(textFile));
-                String st;
-                int iterator = 0;
-                while ((st = br.readLine()) != null) {
-                    title_desc[iterator] = st;
-                    iterator++;
+        for(int j = 0;j<size;j++){
+            for (int k=0; k<downloadedVideoId.size(); k++){
+                if (downloadedVideoName.get(j).contains(downloadedVideoId.get(k))){
+                    Video video = new Video();
+                    video.setId(downloadedVideoId.get(j));
+                    File textFile = new File(downloadedVideoDesc.get(j));
+                    try {
+                        BufferedReader br = new BufferedReader(new FileReader(textFile));
+                        String st;
+                        int iterator = 0;
+                        while ((st = br.readLine()) != null) {
+                            title_desc[iterator] = st;
+                            iterator++;
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        Toast.makeText(context, "Exception : " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                    video.setTitle(title_desc[0]);
+                    video.setDescription(title_desc[1]);
+                    video.setCardImageUrl(downloadedCardImage.get(j));
+                    video.setVideoUrl(downloadedVideoName.get(j));
+                    if(title_desc[2].equals("Playgroup")){
+                        actualVideoList.add(video);
+                        offlineVideos.add(video.getId());
+                    }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(context, "Exception : " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-            video.setTitle(title_desc[0]);
-            video.setDescription(title_desc[1]);
-            video.setCardImageUrl(downloadedCardImage.get(i));
-            video.setVideoUrl(downloadedVideoName.get(i));
-            if (title_desc[2].equals("Nursery")) {
-                actualVideoList.add(video);
-                offlineVideos.add(video.getId());
             }
         }
     }

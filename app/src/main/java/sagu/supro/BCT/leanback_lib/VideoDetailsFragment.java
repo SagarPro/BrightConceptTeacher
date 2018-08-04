@@ -47,6 +47,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -72,6 +73,7 @@ import java.util.List;
 
 import dmax.dialog.SpotsDialog;
 import sagu.supro.BCT.R;
+import sagu.supro.BCT.levels.lkg.LkgVideoList;
 import sagu.supro.BCT.tv.MainScreen;
 import sagu.supro.BCT.utils.Config;
 
@@ -99,6 +101,7 @@ public class VideoDetailsFragment extends DetailsFragment {
     private static final int DETAIL_THUMB_HEIGHT = 276;
 
     private Video mSelectedVideo;
+    private List<String> totalDwnVideos = new ArrayList<>();
 
     private ArrayObjectAdapter mAdapter;
     private ClassPresenterSelector mPresenterSelector;
@@ -427,25 +430,60 @@ public class VideoDetailsFragment extends DetailsFragment {
         alertDialog.show();
     }
 
-    private int getTotalDownloadedProjects(File directory) {
+    /*private int getTotalDownloadedProjects(File directory) {
         if (!directory.exists())
             return 0;
-        return directory.list().length;
+        File[] fileList = directory.listFiles();
+        return fileList.length;
+    }*/
+
+    public int getTotalDownloadedProjects(File directory) {
+        totalDwnVideos.clear();
+        getDownloadedVideoNames(directory);
+        return totalDwnVideos.size();
+    }
+
+    private void getDownloadedVideoNames(File directory) {
+        File[] fileList = directory.listFiles();
+        if (fileList != null) {
+            for (File currentFile : fileList) {
+                if (!currentFile.isDirectory() && getMimeType(currentFile.getName()).equals("video/mp4")) {
+                    totalDwnVideos.add(currentFile.getPath());
+                } else if (!currentFile.isDirectory() && getMimeType(currentFile.getName()).equals("image/jpeg")) {
+                    Log.d("IMG", "image");
+                } else if (!currentFile.isDirectory() && getMimeType(currentFile.getName()).equals("text/plain")) {
+                    Log.d("TXT", "text");
+                } else {
+                    if (currentFile.length() != 0) {
+                        getDownloadedVideoNames(currentFile);
+                    }
+                }
+            }
+        }
+    }
+
+    private String getMimeType(String fileUrl) {
+        String extension = MimeTypeMap.getFileExtensionFromUrl(fileUrl);
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
     }
 
     private void refreshAdapter(){
         switch (level){
             case "Playgroup":
                 playgroupFrag.loadRows();
+                //playgroupFrag.refreshDownloads();
                 break;
             case "Nursery":
                 nurseryFrag.loadRows();
+                //nurseryFrag.refreshDownloads();
                 break;
             case "LKG":
                 lkgFrag.loadRows();
+                //lkgFrag.refreshDownloads();
                 break;
             case "UKG":
                 ukgFrag.loadRows();
+                //ukgFrag.refreshDownloads();
                 break;
         }
         //mainFrag.loadRows();

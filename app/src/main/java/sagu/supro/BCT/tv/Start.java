@@ -53,7 +53,7 @@ public class Start extends Activity {
 
     RelativeLayout snackbarView;
 
-    SharedPreferences userPref;
+    //SharedPreferences userPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +81,9 @@ public class Start extends Activity {
                 .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
                 .build();
 
-        userPref = getSharedPreferences("USER", MODE_PRIVATE);
+        //userPref = getSharedPreferences("USER", MODE_PRIVATE);
 
-        String userType = userPref.getString("UserType", "");
+        /*String userType = userPref.getString("UserType", "");
         if (!userType.equals("")) {
 
             if (userType.equals("user")) {
@@ -94,7 +94,7 @@ public class Start extends Activity {
                 finish();
             }
 
-        }
+        }*/
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -222,18 +222,18 @@ public class Start extends Activity {
                     alertDialog.show();
                     break;
                 case "user_success":
-                    SharedPreferences.Editor prefsEditor = userPref.edit();
+                    /*SharedPreferences.Editor prefsEditor = userPref.edit();
                     prefsEditor.putString("UserEmail", userDetailsDO.getEmail());
                     prefsEditor.putString("UserName", userDetailsDO.getUserName());
                     prefsEditor.putString("UserType", "user");
-                    prefsEditor.apply();
+                    prefsEditor.apply();*/
                     startActivity(new Intent(Start.this, MainScreen.class));
                     finish();
                     break;
                 case "admin_success":
-                    SharedPreferences.Editor aPrefEditor = userPref.edit();
+                    /*SharedPreferences.Editor aPrefEditor = userPref.edit();
                     aPrefEditor.putString("UserType", "admin");
-                    aPrefEditor.apply();
+                    aPrefEditor.apply();*/
                     startActivity(new Intent(Start.this,Admin.class));
                     finish();
                     break;
