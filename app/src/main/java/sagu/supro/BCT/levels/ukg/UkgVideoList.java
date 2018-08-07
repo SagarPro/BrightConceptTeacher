@@ -283,7 +283,7 @@ public class UkgVideoList {
                     video.setDescription(title_desc[1]);
                     video.setCardImageUrl(downloadedCardImage.get(j));
                     video.setVideoUrl(downloadedVideoName.get(j));
-                    if(title_desc[2].equals("Playgroup")){
+                    if(title_desc[2].equals("UKG")){
                         actualVideoList.add(video);
                         offlineVideos.add(video.getId());
                     }
