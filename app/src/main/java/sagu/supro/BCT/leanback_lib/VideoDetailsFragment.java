@@ -50,6 +50,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -468,24 +469,26 @@ public class VideoDetailsFragment extends DetailsFragment {
     }
 
     private void refreshAdapter(){
-        switch (level){
+        Toast.makeText(getContext(), "Go back and click on particular level to refresh", Toast.LENGTH_LONG).show();
+        getActivity().finish();
+        /*switch (level){
             case "Playgroup":
-                playgroupFrag.loadRows();
+                //playgroupFrag.loadRows();
                 //playgroupFrag.refreshDownloads();
                 break;
             case "Nursery":
-                nurseryFrag.loadRows();
+                //nurseryFrag.loadRows();
                 //nurseryFrag.refreshDownloads();
                 break;
             case "LKG":
-                lkgFrag.loadRows();
+                //lkgFrag.loadRows();
                 //lkgFrag.refreshDownloads();
                 break;
             case "UKG":
-                ukgFrag.loadRows();
+                //ukgFrag.loadRows();
                 //ukgFrag.refreshDownloads();
                 break;
-        }
+        }*/
         //mainFrag.loadRows();
     }
 

@@ -46,11 +46,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentEnd="true"
         android:layout_marginBottom="227dp"
         android:background="@color/light_blue"
         android:text="Login"
         android:textAllCaps="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/b_clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="227dp"
+        android:background="@color/light_blue"
+        android:text="Clear All"
+        android:textAllCaps="true"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="20sp"
         android:textStyle="bold" />

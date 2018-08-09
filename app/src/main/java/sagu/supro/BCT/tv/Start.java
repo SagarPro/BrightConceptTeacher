@@ -6,10 +6,10 @@ import android.app.AlertDialog;
 import android.app.UiModeManager;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +27,7 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 
+import java.io.File;
 import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,7 +50,7 @@ public class Start extends Activity {
     private DynamoDBMapper dynamoDBMapper;
 
     EditText userEmail,userPass;
-    Button login;
+    Button login, clear;
 
     RelativeLayout snackbarView;
 
@@ -64,6 +65,7 @@ public class Start extends Activity {
         userEmail = findViewById(R.id.et_email);
         userPass = findViewById(R.id.et_password);
         login = findViewById(R.id.b_submit);
+        clear = findViewById(R.id.b_clear);
 
         UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
         if (uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {
@@ -100,19 +102,57 @@ public class Start extends Activity {
             @Override
             public void onClick(View v) {
                 if(TextUtils.isEmpty(userEmail.getText().toString()) || TextUtils.isEmpty(userPass.getText().toString())){
-                    showErrorToUser("Empty Fields Are Not Allowed");
+                    showErrorToUser();
                 }
                 else{
                     new ValidateUser().execute(userEmail.getText().toString(),userPass.getText().toString());
                 }
             }
         });
+
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearDialog();
+            }
+        });
+
     }
 
-    private void showErrorToUser(String errMessage){
+    private void clearDialog(){
         AlertDialog alertDialog;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(errMessage);
+        builder.setTitle("Are you sure, you want to clear all videos data?");
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                File dir = new File(Environment.getExternalStorageDirectory()+"/.BCT");
+                deleteRecursive(dir);
+            }
+        });
+        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        alertDialog = builder.create();
+        alertDialog.setCancelable(false);
+        alertDialog.show();
+    }
+
+    void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+        fileOrDirectory.delete();
+    }
+
+    private void showErrorToUser(){
+        AlertDialog alertDialog;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Empty Fields Are Not Allowed");
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
